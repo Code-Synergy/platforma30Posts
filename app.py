@@ -3,6 +3,7 @@ from flask_cors import CORS
 from models import init_app
 from models.user import user_bp
 from models.ordens_de_servico import ordens_de_servico_bp
+from models.clientes import clientes_bp
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -13,6 +14,8 @@ init_app(app)
 
 app.register_blueprint(user_bp, url_prefix='/auth')
 app.register_blueprint(ordens_de_servico_bp, url_prefix='/ordens_de_servico')
+app.register_blueprint(clientes_bp, url_prefix='/clientes')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
