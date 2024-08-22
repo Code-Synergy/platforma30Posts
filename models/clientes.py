@@ -1,90 +1,86 @@
 from flask import Blueprint, request, jsonify
-from . import get_db
+from . import db
 
 clientes_bp = Blueprint('clientes', __name__)
 
+class Cliente(db.Model):
+    __tablename__ = 'clientes'
 
-# Criar cliente
-@clientes_bp.route('/', methods=['POST'])
-def create_cliente():
-    data = request.get_json()
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO public.clientes (nome, contato, segmento, telefone, email, pais, negocio_id, ativo) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING cliente_id;
-    """, (
-    data['nome'], data['contato'], data['segmento'], data['telefone'], data['email'], data['pais'], data['negocio_id'],
-    True))
-    cliente_id = cur.fetchone()[0]
-    conn.commit()
-    cur.close()
-    return jsonify({'cliente_id': cliente_id}), 201
+    cliente_id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255), nullable=False)
+    contato = db.Column(db.String(255))
+    segmento = db.Column(db.String(255))
+    telefone = db.Column(db.String(20))
+    email = db.Column(db.String(255))
+    pais = db.Column(db.String(100))
+    tipo_cliente_id = db.Column(db.Integer, db.ForeignKey('tipo_cliente.tipo_cliente_id'))
+    ativo = db.Column(db.Boolean, default=True)
 
+    def __init__(self, nome, contato, segmento, telefone, email, pais, tipo_cliente_id, ativo=True):
+        self.nome = nome
+        self.contato = contato
+        self.segmento = segmento
+        self.telefone = telefone
+        self.email = email
+        self.pais = pais
+        self.tipo_cliente_id = tipo_cliente_id
+        self.ativo = ativo
 
-# Obter todos os clientes ativos
+    def serialize(self):
+        return {
+            'cliente_id': self.cliente_id,
+            'nome': self.nome,
+            'contato': self.contato,
+            'segmento': self.segmento,
+            'telefone': self.telefone,
+            'email': self.email,
+            'pais': self.pais,
+            'tipo_cliente_id': self.tipo_cliente_id,
+            'ativo': self.ativo
+        }
+
 @clientes_bp.route('/', methods=['GET'])
 def get_clientes():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM public.clientes WHERE ativo = TRUE;")
-    rows = cur.fetchall()
-    cur.close()
-    return jsonify(rows)
+    clientes = Cliente.query.all()
+    return jsonify([c.serialize() for c in clientes])
 
+@clientes_bp.route('/', methods=['POST'])
+def add_cliente():
+    data = request.get_json()
+    cliente = Cliente(
+        nome=data['nome'],
+        contato=data.get('contato'),
+        segmento=data.get('segmento'),
+        telefone=data.get('telefone'),
+        email=data.get('email'),
+        pais=data.get('pais'),
+        tipo_cliente_id=data.get('tipo_cliente_id'),
+        ativo=data.get('ativo', True)
+    )
+    db.session.add(cliente)
+    db.session.commit()
+    return jsonify(cliente.serialize()), 201
 
-# Obter um cliente específico
-@clientes_bp.route('/<int:id>', methods=['GET'])
-def get_cliente(id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM public.clientes WHERE cliente_id = %s AND ativo = TRUE;", (id,))
-    row = cur.fetchone()
-    cur.close()
-    return jsonify(row)
-
-
-# Atualizar cliente
 @clientes_bp.route('/<int:id>', methods=['PUT'])
 def update_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
     data = request.get_json()
-    conn = get_db()
-    cur = conn.cursor()
 
-    # Obter o cliente atual
-    cur.execute("SELECT * FROM public.clientes WHERE cliente_id = %s;", (id,))
-    cliente_atual = cur.fetchone()
+    cliente.nome = data.get('nome', cliente.nome)
+    cliente.contato = data.get('contato', cliente.contato)
+    cliente.segmento = data.get('segmento', cliente.segmento)
+    cliente.telefone = data.get('telefone', cliente.telefone)
+    cliente.email = data.get('email', cliente.email)
+    cliente.pais = data.get('pais', cliente.pais)
+    cliente.tipo_cliente_id = data.get('tipo_cliente_id', cliente.tipo_cliente_id)
+    cliente.ativo = data.get('ativo', cliente.ativo)
 
-    if not cliente_atual:
-        return jsonify({'message': 'Cliente não encontrado'}), 404
+    db.session.commit()
+    return jsonify(cliente.serialize())
 
-    # Atualizar apenas os campos fornecidos no JSON
-    nome = data.get('nome', cliente_atual[1])
-    contato = data.get('contato', cliente_atual[2])
-    segmento = data.get('segmento', cliente_atual[3])
-    telefone = data.get('telefone', cliente_atual[4])
-    email = data.get('email', cliente_atual[5])
-    pais = data.get('pais', cliente_atual[6])
-    negocio_id = data.get('negocio_id', cliente_atual[7])
-    ativo = data.get('ativo', cliente_atual[8])
-
-    cur.execute("""
-        UPDATE public.clientes 
-        SET nome = %s, contato = %s, segmento = %s, telefone = %s, email = %s, pais = %s, negocio_id = %s, ativo = %s 
-        WHERE cliente_id = %s;
-    """, (nome, contato, segmento, telefone, email, pais, negocio_id, ativo, id))
-
-    conn.commit()
-    cur.close()
-    return jsonify({'message': 'Cliente atualizado com sucesso'}), 200
-
-
-# Desativar cliente (exclusão lógica)
 @clientes_bp.route('/<int:id>', methods=['DELETE'])
 def delete_cliente(id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE public.clientes SET ativo = FALSE WHERE cliente_id = %s;", (id,))
-    conn.commit()
-    cur.close()
-    return jsonify({'message': 'Cliente desativado com sucesso'}), 200
+    cliente = Cliente.query.get_or_404(id)
+    db.session.delete(cliente)
+    db.session.commit()
+    return '', 204

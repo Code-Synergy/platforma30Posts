@@ -1,15 +1,12 @@
-import psycopg2
-from flask import current_app, g
+from flask_sqlalchemy import SQLAlchemy
 
-def get_db():
-    if 'db' not in g:
-        g.db = psycopg2.connect(current_app.config['DATABASE_URI'])
-    return g.db
-
-def close_db(e=None):
-    db = g.pop('db', None)
-    if db is not None:
-        db.close()
+# Inicializar a instância do SQLAlchemy
+db = SQLAlchemy()
 
 def init_app(app):
-    app.teardown_appcontext(close_db)
+    # Configurar o SQLAlchemy com o aplicativo Flask
+    db.init_app(app)
+
+    # Se desejar criar todas as tabelas automaticamente (útil para desenvolvimento)
+    with app.app_context():
+        db.create_all()

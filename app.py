@@ -1,25 +1,26 @@
 from flask import Flask
-from flask_cors import CORS
-from models import init_app
-from models.user import user_bp
-from models.ordens_de_servico import ordens_de_servico_bp
-from models.clientes import clientes_bp
-from models.informacoes_clientes import informacoes_clientes_bp
-from models.negocios import negocios_bp
+from flask_jwt_extended import JWTManager
+from models import db, clientes, ordens_de_servico, negocios, workflow, formulario_cliente, legendas, tipo_cliente
+from config import Config
 
 app = Flask(__name__)
-app.config.from_object('config.Config')
+app.config.from_object(Config)
 
-CORS(app)  # Adicione esta linha para habilitar o CORS
+# Certifique-se de que SQLALCHEMY_DATABASE_URI esteja definida
+app.config['SQLALCHEMY_DATABASE_URI'] = Config.DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-init_app(app)
+db.init_app(app)
+jwt = JWTManager(app)
 
-app.register_blueprint(user_bp, url_prefix='/auth')
-app.register_blueprint(ordens_de_servico_bp, url_prefix='/ordens_de_servico')
-app.register_blueprint(clientes_bp, url_prefix='/clientes')
-app.register_blueprint(informacoes_clientes_bp, url_prefix='/informacoes_clientes')
-app.register_blueprint(negocios_bp, url_prefix='/negocios')
-
+# Registrar blueprints
+app.register_blueprint(clientes.clientes_bp, url_prefix='/clientes')
+app.register_blueprint(ordens_de_servico.ordens_de_servico_bp, url_prefix='/ordens_de_servico')
+app.register_blueprint(negocios.negocios_bp, url_prefix='/negocios')
+app.register_blueprint(workflow.workflow_bp, url_prefix='/workflow')
+app.register_blueprint(formulario_cliente.formulario_cliente_bp, url_prefix='/formulario_cliente')
+app.register_blueprint(legendas.legendas_bp, url_prefix='/legendas')
+app.register_blueprint(tipo_cliente.tipo_de_cliente_bp, url_prefix='/tipo_cliente')
 
 if __name__ == '__main__':
     app.run(debug=True)
