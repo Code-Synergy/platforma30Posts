@@ -10,18 +10,30 @@ class Legenda(db.Model):
     id_form = db.Column(db.Integer, db.ForeignKey('formulario_cliente.form_id'), nullable=False)
     dia_post = db.Column(db.String(10), nullable=False)
     ds_legenda = db.Column(db.Text, nullable=False)
+    img_legenda = db.Column(db.Text)
+    bl_aprovado = db.Column(db.Boolean, default=False)
+    bl_revisar = db.Column(db.Boolean, default=False)
+    ds_revisao = db.Column(db.Text)
 
-    def __init__(self, id_form, dia_post, ds_legenda):
+    def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False, ds_revisao=None):
         self.id_form = id_form
         self.dia_post = dia_post
         self.ds_legenda = ds_legenda
+        self.img_legenda = img_legenda
+        self.bl_aprovado = bl_aprovado
+        self.bl_revisar = bl_revisar
+        self.ds_revisao = ds_revisao
 
     def serialize(self):
         return {
             'id_legenda': self.id_legenda,
             'id_form': self.id_form,
             'dia_post': self.dia_post,
-            'ds_legenda': self.ds_legenda
+            'ds_legenda': self.ds_legenda,
+            'img_legenda': self.img_legenda,
+            'bl_aprovado': self.bl_aprovado,
+            'bl_revisar': self.bl_revisar,
+            'ds_revisao': self.ds_revisao
         }
 
 @legendas_bp.route('/', methods=['GET'])
@@ -35,19 +47,30 @@ def add_legenda():
     legenda = Legenda(
         id_form=data['id_form'],
         dia_post=data['dia_post'],
-        ds_legenda=data['ds_legenda']
+        ds_legenda=data['ds_legenda'],
+        bl_aprovado=data['bl_aprovado'],
+        bl_revisar=data['bl_revisar'],
+        ds_revisao=data['ds_revisao']
     )
     db.session.add(legenda)
     db.session.commit()
     return jsonify(legenda.serialize()), 201
 
+
 @legendas_bp.route('/<int:id_legenda>/<int:id_form>/<string:dia_post>', methods=['PUT'])
 def update_legenda(id_legenda, id_form, dia_post):
     legenda = Legenda.query.filter_by(id_legenda=id_legenda, id_form=id_form, dia_post=dia_post).first_or_404()
     data = request.get_json()
+
     legenda.ds_legenda = data.get('ds_legenda', legenda.ds_legenda)
+    legenda.img_legenda = data.get('img_legenda', legenda.img_legenda)  # Atualiza img_legenda
+    legenda.bl_aprovado = data.get('bl_aprovado', legenda.bl_aprovado)  # Atualiza bl_aprovado
+    legenda.bl_revisar = data.get('bl_revisar', legenda.bl_revisar)  # Atualiza bl_revisar
+    legenda.ds_revisao = data.get('ds_revisao', legenda.ds_revisao)  # Atualiza ds_revisao
+
     db.session.commit()
     return jsonify(legenda.serialize())
+
 
 @legendas_bp.route('/<int:id_legenda>/<int:id_form>/<string:dia_post>', methods=['DELETE'])
 def delete_legenda(id_legenda, id_form, dia_post):
@@ -55,3 +78,4 @@ def delete_legenda(id_legenda, id_form, dia_post):
     db.session.delete(legenda)
     db.session.commit()
     return '', 204
+
