@@ -6,19 +6,19 @@ formulario_cliente_bp = Blueprint('formulario_cliente', __name__)
 class FormularioCliente(db.Model):
     __tablename__ = 'formulario_cliente'
 
-    form_id = db.Column(db.Integer, primary_key=True)
-    os_id = db.Column(db.Integer, db.ForeignKey('ordens_de_servico.os_id'))
-    nome = db.Column(db.String(255))
-    whatsapp = db.Column(db.String(20))
-    email = db.Column(db.String(255))
-    negocio = db.Column(db.String(255))
+    id_form = db.Column(db.String(36), primary_key=True, default=db.func.gen_random_uuid())
+    ordem_id = db.Column(db.Integer, db.ForeignKey('ordens_de_servico.ordem_id'))
+    nome_cliente = db.Column(db.String(255))
+    whatsapp_cliente = db.Column(db.String(20))
+    email_cliente = db.Column(db.String(255), nullable=False)
+    nome_negocio = db.Column(db.String(255))
     whatsapp_negocio = db.Column(db.String(20))
     nicho = db.Column(db.String(255))
     site = db.Column(db.String(255))
-    perfil_rede_social_1 = db.Column(db.String(255))
-    perfil_rede_social_2 = db.Column(db.String(255))
-    perfil_rede_social_3 = db.Column(db.String(255))
-    resumo = db.Column(db.Text)
+    perfis_redes_sociais_1 = db.Column(db.String(255))
+    perfis_redes_sociais_2 = db.Column(db.String(255))
+    perfis_redes_sociais_3 = db.Column(db.String(255))
+    resumo_cliente = db.Column(db.Text)
     comeco = db.Column(db.Text)
     temas = db.Column(db.Text)
     produto = db.Column(db.Text)
@@ -26,24 +26,52 @@ class FormularioCliente(db.Model):
     identidade_visual_2 = db.Column(db.String(255))
     identidade_visual_3 = db.Column(db.String(255))
     url_logo = db.Column(db.String(255))
-    estilo = db.Column(db.String(255))
-    url_imagens = db.Column(db.String(255))
+    estilo = db.Column(db.Text)
     comentarios = db.Column(db.Text)
-    workflow_id = db.Column(db.Integer, db.ForeignKey('workflow.workflow_id'))
+    url_imagem_01 = db.Column(db.String(255))
+    url_imagem_02 = db.Column(db.String(255))
+    url_imagem_03 = db.Column(db.String(255))
+    url_imagem_04 = db.Column(db.String(255))
+    url_imagem_05 = db.Column(db.String(255))
+    url_imagem_06 = db.Column(db.String(255))
+    url_imagem_07 = db.Column(db.String(255))
+    url_imagem_08 = db.Column(db.String(255))
+    url_imagem_09 = db.Column(db.String(255))
+    url_imagem_10 = db.Column(db.String(255))
+    url_imagem_11 = db.Column(db.String(255))
+    url_imagem_12 = db.Column(db.String(255))
+    url_imagem_13 = db.Column(db.String(255))
+    url_imagem_14 = db.Column(db.String(255))
+    url_imagem_15 = db.Column(db.String(255))
+    url_imagem_16 = db.Column(db.String(255))
+    url_imagem_17 = db.Column(db.String(255))
+    url_imagem_18 = db.Column(db.String(255))
+    url_imagem_19 = db.Column(db.String(255))
+    url_imagem_20 = db.Column(db.String(255))
+    url_imagem_21 = db.Column(db.String(255))
+    url_imagem_22 = db.Column(db.String(255))
+    url_imagem_23 = db.Column(db.String(255))
+    url_imagem_24 = db.Column(db.String(255))
+    url_imagem_25 = db.Column(db.String(255))
+    url_imagem_26 = db.Column(db.String(255))
+    url_imagem_27 = db.Column(db.String(255))
+    url_imagem_28 = db.Column(db.String(255))
+    url_imagem_29 = db.Column(db.String(255))
+    url_imagem_30 = db.Column(db.String(255))
 
-    def __init__(self, os_id, nome, whatsapp, email, negocio, whatsapp_negocio, nicho, site, perfil_rede_social_1, perfil_rede_social_2, perfil_rede_social_3, resumo, comeco, temas, produto, identidade_visual_1, identidade_visual_2, identidade_visual_3, url_logo, estilo, url_imagens, comentarios, workflow_id):
-        self.os_id = os_id
-        self.nome = nome
-        self.whatsapp = whatsapp
-        self.email = email
-        self.negocio = negocio
+    def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio, whatsapp_negocio, nicho, site, perfis_redes_sociais_1, perfis_redes_sociais_2, perfis_redes_sociais_3, resumo_cliente, comeco, temas, produto, identidade_visual_1, identidade_visual_2, identidade_visual_3, url_logo, estilo, comentarios, **kwargs):
+        self.ordem_id = ordem_id
+        self.nome_cliente = nome_cliente
+        self.whatsapp_cliente = whatsapp_cliente
+        self.email_cliente = email_cliente
+        self.nome_negocio = nome_negocio
         self.whatsapp_negocio = whatsapp_negocio
         self.nicho = nicho
         self.site = site
-        self.perfil_rede_social_1 = perfil_rede_social_1
-        self.perfil_rede_social_2 = perfil_rede_social_2
-        self.perfil_rede_social_3 = perfil_rede_social_3
-        self.resumo = resumo
+        self.perfis_redes_sociais_1 = perfis_redes_sociais_1
+        self.perfis_redes_sociais_2 = perfis_redes_sociais_2
+        self.perfis_redes_sociais_3 = perfis_redes_sociais_3
+        self.resumo_cliente = resumo_cliente
         self.comeco = comeco
         self.temas = temas
         self.produto = produto
@@ -52,9 +80,11 @@ class FormularioCliente(db.Model):
         self.identidade_visual_3 = identidade_visual_3
         self.url_logo = url_logo
         self.estilo = estilo
-        self.url_imagens = url_imagens
         self.comentarios = comentarios
-        self.workflow_id = workflow_id
+        # URLs das imagens (até 30 imagens)
+        for i in range(1, 31):
+            setattr(self, f'url_imagem_{i:02}', kwargs.get(f'url_imagem_{i:02}'))
+
 
 @formulario_cliente_bp.route('/', methods=['GET'])
 def get_formularios_cliente():
