@@ -44,6 +44,16 @@ def get_clientes():
     clientes = Cliente.query.all()
     return jsonify([c.serialize() for c in clientes])
 
+
+@clientes_bp.route('/search', methods=['GET'])
+def search_clientes():
+    nome = request.args.get('nome', '')
+
+    # Pesquisa por clientes cujo nome contém a string fornecida (case-insensitive)
+    clientes = Cliente.query.filter(Cliente.nome.ilike(f'%{nome}%')).all()
+
+    return jsonify([c.serialize() for c in clientes])
+
 @clientes_bp.route('/', methods=['POST'])
 def add_cliente():
     data = request.get_json()
