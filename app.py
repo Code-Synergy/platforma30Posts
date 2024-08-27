@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from models import db, clientes, ordens_de_servico, negocios, workflow, formulario_cliente, legendas, tipo_cliente
+from models import db, clientes, ordens_de_servico, negocios, workflow, formulario_cliente, legendas, tipo_cliente, user
 from config import Config
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app)
 
 # Certifique-se de que SQLALCHEMY_DATABASE_URI esteja definida
 app.config['SQLALCHEMY_DATABASE_URI'] = Config.DATABASE_URI
@@ -21,6 +23,7 @@ app.register_blueprint(workflow.workflow_bp, url_prefix='/workflow')
 app.register_blueprint(formulario_cliente.formulario_cliente_bp, url_prefix='/formulario_cliente')
 app.register_blueprint(legendas.legendas_bp, url_prefix='/legendas')
 app.register_blueprint(tipo_cliente.tipo_de_cliente_bp, url_prefix='/tipo_cliente')
+app.register_blueprint(user.user_bp, url_prefix='/user')
 
 if __name__ == '__main__':
     app.run(debug=True)
