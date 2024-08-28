@@ -1,15 +1,18 @@
 from flask import Blueprint, request, jsonify
 from . import db
+from utils.token_verify import token_required  
 
 formulario_cliente_bp = Blueprint('formulario_cliente', __name__)
+
+from . import db
 
 class FormularioCliente(db.Model):
     __tablename__ = 'formulario_cliente'
 
-    id_form = db.Column(db.String(36), primary_key=True, default=db.func.gen_random_uuid())
+    id_form = db.Column(db.String(36), primary_key=True, default=db.func.gen_random_uuid())  # Verifique se o banco suporta gen_random_uuid()
     ordem_id = db.Column(db.Integer, db.ForeignKey('ordens_de_servico.ordem_id'))
     nome_cliente = db.Column(db.String(255))
-    whatsapp_cliente = db.Column(db.String(20))
+    whatsapp_cliente = db.Column(db.String(20), nullable=False)
     email_cliente = db.Column(db.String(255), nullable=False)
     nome_negocio = db.Column(db.String(255))
     whatsapp_negocio = db.Column(db.String(20))
@@ -28,6 +31,7 @@ class FormularioCliente(db.Model):
     url_logo = db.Column(db.String(255))
     estilo = db.Column(db.Text)
     comentarios = db.Column(db.Text)
+
     url_imagem_01 = db.Column(db.String(255))
     url_imagem_02 = db.Column(db.String(255))
     url_imagem_03 = db.Column(db.String(255))
@@ -59,7 +63,10 @@ class FormularioCliente(db.Model):
     url_imagem_29 = db.Column(db.String(255))
     url_imagem_30 = db.Column(db.String(255))
 
-    def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio, whatsapp_negocio, nicho, site, perfis_redes_sociais_1, perfis_redes_sociais_2, perfis_redes_sociais_3, resumo_cliente, comeco, temas, produto, identidade_visual_1, identidade_visual_2, identidade_visual_3, url_logo, estilo, comentarios, **kwargs):
+    def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio=None, whatsapp_negocio=None,
+                 nicho=None, site=None, perfis_redes_sociais_1=None, perfis_redes_sociais_2=None, perfis_redes_sociais_3=None,
+                 resumo_cliente=None, comeco=None, temas=None, produto=None, identidade_visual_1=None, identidade_visual_2=None,
+                 identidade_visual_3=None, url_logo=None, estilo=None, comentarios=None, **kwargs):
         self.ordem_id = ordem_id
         self.nome_cliente = nome_cliente
         self.whatsapp_cliente = whatsapp_cliente
@@ -81,15 +88,30 @@ class FormularioCliente(db.Model):
         self.url_logo = url_logo
         self.estilo = estilo
         self.comentarios = comentarios
-        # URLs das imagens (até 30 imagens)
+
+        # Atribuir URLs das imagens (até 30)
         for i in range(1, 31):
             setattr(self, f'url_imagem_{i:02}', kwargs.get(f'url_imagem_{i:02}'))
 
 
-@formulario_cliente_bp.route('/', methods=['GET'])
+
+@formulario_cliente_bp.route('/all', methods=['GET'])
 def get_formularios_cliente():
     formularios = FormularioCliente.query.all()
     return jsonify([f.serialize() for f in formularios])
+
+@formulario_cliente_bp.route('/', methods=['GET'])
+@token_required
+def get_formularios_cliente_id(token_data):
+    form_id = token_data.get('id')
+    formularios = FormularioCliente.query.get(form_id)
+    if formularios :
+        return jsonify({
+            'telefone': formularios.whatsapp_cliente,
+            'email': formularios.email_cliente
+        })
+    else:
+        return jsonify({'message': 'Not Found!'}), 404
 
 @formulario_cliente_bp.route('/', methods=['POST'])
 def add_formulario_cliente():
