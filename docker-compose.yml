@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development  # Para ir para produçao usar 'production'
+      DATABASE_URL: "postgresql://postgres.urxsxcaesrhgtwwvxmku:3Bg810W7z4t7YtGA@aws-0-sa-east-1.pooler.supabase.com/postgres')"
+    volumes:
+      - .:/app
