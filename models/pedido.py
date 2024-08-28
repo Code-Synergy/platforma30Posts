@@ -3,73 +3,74 @@ from . import db
 
 pedidos_bp = Blueprint('pedidos', __name__)
 
-def serialize_pedido(pedido):
-    return {
-        'pedido_id': pedido[0],
-        'negocio_id': pedido[1],
-        'descricao': pedido[2],
-        'valor': float(pedido[3])
-    }
+class Pedido(db.Model):
+    __tablename__ = 'pedidos'
 
+    pedido_id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, nullable=False)
+    descricao = db.Column(db.Text)
+    valor = db.Column(db.Numeric(10, 2), nullable=False)
+    cliente_id = db.Column(db.Integer)  # Incluindo cliente_id
+    ativo = db.Column(db.Boolean, default=True)  # Incluindo ativo
+
+    def serialize(self):
+        return {
+            'pedido_id': self.pedido_id,
+            'negocio_id': self.negocio_id,
+            'descricao': self.descricao,
+            'valor': str(self.valor),  # Converter para string para evitar problemas de serialização
+            'cliente_id': self.cliente_id,
+            'ativo': self.ativo
+        }
+
+# Listar todos os pedidos
 @pedidos_bp.route('/', methods=['GET'])
 def get_pedidos():
-    try:
-        conn = db()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM public.pedidos;")
-        pedidos = cur.fetchall()
-        cur.close()
-        return jsonify([serialize_pedido(p) for p in pedidos]), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    """Retorna todos os pedidos"""
+    pedidos = Pedido.query.all()
+    return jsonify([p.serialize() for p in pedidos])
 
+# Listar pedidos por cliente_id
+@pedidos_bp.route('/cliente/<int:cliente_id>', methods=['GET'])
+def get_pedidos_by_cliente(cliente_id):
+    """Retorna todos os pedidos de um cliente específico"""
+    pedidos = Pedido.query.filter_by(cliente_id=cliente_id).all()
+    return jsonify([p.serialize() for p in pedidos])
+
+# Incluir novo pedido
 @pedidos_bp.route('/', methods=['POST'])
-def create_pedido():
+def add_pedido():
     data = request.get_json()
-    try:
-        conn = db()
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO public.pedidos (negocio_id, descricao, valor)
-            VALUES (%s, %s, %s)
-            RETURNING pedido_id;
-        """, (
-            data['negocio_id'], data.get('descricao'), data['valor']
-        ))
-        pedido_id = cur.fetchone()[0]
-        conn.commit()
-        cur.close()
-        return jsonify({'pedido_id': pedido_id}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    pedido = Pedido(
+        negocio_id=data['negocio_id'],
+        descricao=data.get('descricao'),
+        valor=data['valor'],
+        cliente_id=data.get('cliente_id'),  # Incluindo cliente_id
+        ativo=data.get('ativo', True)  # Incluindo ativo
+    )
+    db.session.add(pedido)
+    db.session.commit()
+    return jsonify(pedido.serialize()), 201
 
-@pedidos_bp.route('/<int:id>/', methods=['PUT'])
-def update_pedido(id):
+
+
+# Alterar pedido existente
+@pedidos_bp.route('/<int:pedido_id>', methods=['PUT'])
+def update_pedido(pedido_id):
+    pedido = Pedido.query.get_or_404(pedido_id)
     data = request.get_json()
-    try:
-        conn = db()
-        cur = conn.cursor()
-        cur.execute("""
-            UPDATE public.pedidos
-            SET negocio_id = %s, descricao = %s, valor = %s
-            WHERE pedido_id = %s;
-        """, (
-            data['negocio_id'], data.get('descricao'), data['valor'], id
-        ))
-        conn.commit()
-        cur.close()
-        return jsonify({'message': 'Pedido atualizado com sucesso'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@pedidos_bp.route('/<int:id>/', methods=['DELETE'])
-def delete_pedido(id):
-    try:
-        conn = db()
-        cur = conn.cursor()
-        cur.execute("DELETE FROM public.pedidos WHERE pedido_id = %s;", (id,))
-        conn.commit()
-        cur.close()
-        return jsonify({'message': 'Pedido deletado com sucesso'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    pedido.cliente_id = data.get('cliente_id', pedido.cliente_id)
+    pedido.descricao = data.get('descricao', pedido.descricao)
+    pedido.ativo = data.get('ativo', pedido.ativo)
+
+    db.session.commit()
+    return jsonify(pedido.serialize())
+
+# Deletar pedido existente
+@pedidos_bp.route('/<int:pedido_id>', methods=['DELETE'])
+def delete_pedido(pedido_id):
+    pedido = Pedido.query.get_or_404(pedido_id)
+    db.session.delete(pedido)
+    db.session.commit()
+    return '', 204
