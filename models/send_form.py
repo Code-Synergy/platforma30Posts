@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models.formulario_cliente import FormularioCliente
+from models.ordens_de_servico import OrdemDeServico
 from utils.token_verify import token_required  
 from marshmallow import Schema, fields, ValidationError
 from . import db
@@ -15,6 +16,7 @@ class ClienteSchema(Schema):
     temas = fields.Str(required=True)
     produto = fields.Str(required=True)
     identidade_visual_1 = fields.Str(required=True)
+    identidade_visual_2 = fields.Str(required=True)
     estilo = fields.Str(required=True)
 
     whatsapp_negocio = fields.Str()
@@ -22,7 +24,6 @@ class ClienteSchema(Schema):
     perfis_redes_sociais_1 = fields.Str()
     perfis_redes_sociais_2 = fields.Str()
     perfis_redes_sociais_3 = fields.Str()
-    identidade_visual_2 = fields.Str()
     identidade_visual_3 = fields.Str()
     url_logo = fields.Str()
     comentarios = fields.Str()
@@ -77,6 +78,7 @@ def send_form(token_data):
     
     # Verificando se o form_id é válido
     formulario = FormularioCliente.query.get_or_404(form_id)
+    os = OrdemDeServico.query.get(formulario.ordem_id)
     
     try:
         # Atualizando os campos do formulário
@@ -131,6 +133,8 @@ def send_form(token_data):
         formulario.url_imagem_29 = data.get('url_imagem_29', formulario.url_imagem_29 )
         formulario.url_imagem_30 = data.get('url_imagem_30', formulario.url_imagem_30 )
         
+        os.workflow_id = 2
+
         db.session.commit()
 
         return jsonify({}), 204
