@@ -126,3 +126,9 @@ def delete_ordem_de_servico(id):
     db.session.delete(ordem)
     db.session.commit()
     return '', 204
+
+@ordens_de_servico_bp.route('/usuario/<int:usuario_id>', methods=['GET'])
+def get_ordens_de_servico_by_usuario(usuario_id):
+    """Retorna todas as ordens de serviço de um usuário específico."""
+    ordens = OrdemDeServico.query.filter_by(usuario_id=usuario_id).all()
+    return jsonify([ordem.serialize() for ordem in ordens])
