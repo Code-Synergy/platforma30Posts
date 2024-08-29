@@ -89,3 +89,4 @@ celerybeat.pid
 *.sage.py
 
 *.xml
+.vercel

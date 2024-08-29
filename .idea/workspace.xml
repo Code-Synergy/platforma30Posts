@@ -4,20 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="190df252-41df-45aa-be07-e45dcbdaebc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/platforma30Posts.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/clientes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/negocios.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/ordens_de_servico.py" afterDir="false" />
+    <list default="true" id="190df252-41df-45aa-be07-e45dcbdaebc1" name="Changes" comment="ajuste do requeriments">
+      <change afterPath="$PROJECT_DIR$/.vercelignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/start.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/platforma30Posts.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/platforma30Posts.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vercel.json" beforeDir="false" afterPath="$PROJECT_DIR$/vercel.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,27 +28,41 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2k7IWbhKRenvkavHjntFO7OZD78" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.Gepeto_Zoe.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Gepeto_Zoe_V2.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Gepeto_Zoe_V3.executor&quot;: &quot;Run&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/GitHub/platforma30Posts/models&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\GitHub\platforma30Posts\models" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="app" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="platforma30Posts" />
@@ -96,22 +104,152 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1722628220390</updated>
-      <workItem from="1722628224094" duration="805000" />
+      <workItem from="1722628224094" duration="1117000" />
+      <workItem from="1722910214386" duration="36000" />
+      <workItem from="1723141252304" duration="2094000" />
+      <workItem from="1723143378585" duration="4914000" />
+      <workItem from="1724280758234" duration="3818000" />
+      <workItem from="1724333699800" duration="231000" />
+      <workItem from="1724347404628" duration="14311000" />
+      <workItem from="1724422258795" duration="1909000" />
+      <workItem from="1724677537186" duration="662000" />
+      <workItem from="1724679755687" duration="6418000" />
+      <workItem from="1724721119082" duration="195000" />
+      <workItem from="1724889193415" duration="4523000" />
     </task>
+    <task id="LOCAL-00001" summary="Subida do Serivço de clientes">
+      <option name="closed" value="true" />
+      <created>1723145550437</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1723145550437</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Subida do Serivço de informacoes_clientes">
+      <option name="closed" value="true" />
+      <created>1723149168604</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1723149168604</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Subida do Serivço de negocios">
+      <option name="closed" value="true" />
+      <created>1723150689075</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1723150689075</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Ajustes nos serviços e inclusão de novos.">
+      <option name="closed" value="true" />
+      <created>1724353991507</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1724353991507</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Inicio da Integração com GPT">
+      <option name="closed" value="true" />
+      <created>1724358318277</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1724358318277</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Integração com GPT">
+      <option name="closed" value="true" />
+      <created>1724369717230</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1724369717230</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Integração com GPT - prompt de base e ajuste na zoe">
+      <option name="closed" value="true" />
+      <created>1724424457919</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1724424457919</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Integração com GPT - prompt de base e ajuste na zoe e na tabela de legendas">
+      <option name="closed" value="true" />
+      <created>1724721297745</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1724721297745</updated>
+    </task>
+    <task id="LOCAL-00009" summary="ajuste do requeriments">
+      <option name="closed" value="true" />
+      <created>1724889788548</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1724889788549</updated>
+    </task>
+    <task id="LOCAL-00010" summary="ajuste do requeriments">
+      <option name="closed" value="true" />
+      <created>1724891112953</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1724891112953</updated>
+    </task>
+    <task id="LOCAL-00011" summary="ajuste do requeriments">
+      <option name="closed" value="true" />
+      <created>1724892148191</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1724892148191</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Subida do Serivço de clientes" />
+    <MESSAGE value="Subida do Serivço de informacoes_clientes" />
+    <MESSAGE value="Subida do Serivço de negocios" />
+    <MESSAGE value="Ajustes nos serviços e inclusão de novos." />
+    <MESSAGE value="Inicio da Integração com GPT" />
+    <MESSAGE value="Integração com GPT" />
+    <MESSAGE value="Integração com GPT - prompt de base e ajuste na zoe" />
+    <MESSAGE value="Integração com GPT - prompt de base e ajuste na zoe e na tabela de legendas" />
+    <MESSAGE value="ajuste do requeriments" />
+    <option name="LAST_COMMIT_MESSAGE" value="ajuste do requeriments" />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/app.py</url>
-          <line>8</line>
+          <url>file://$PROJECT_DIR$/models/Gepeto_Zoe_V3.py</url>
+          <line>11</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/platforma30Posts$Gepeto_Zoe_V2.coverage" NAME="Gepeto_Zoe_V2 Coverage Results" MODIFIED="1724422319762" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
+    <SUITE FILE_PATH="coverage/platforma30Posts$app.coverage" NAME="app Coverage Results" MODIFIED="1724697245636" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/platforma30Posts$Gepeto_Zoe.coverage" NAME="Gepeto_Zoe Coverage Results" MODIFIED="1724365597754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
+    <SUITE FILE_PATH="coverage/platforma30Posts$Gepeto_Zoe_V3.coverage" NAME="Gepeto_Zoe_V3 Coverage Results" MODIFIED="1724698129039" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
   </component>
 </project>
