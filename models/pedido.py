@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import text
 from . import db
 
 pedidos_bp = Blueprint('pedidos', __name__)
@@ -33,9 +34,20 @@ def get_pedidos():
 # Listar pedidos por cliente_id
 @pedidos_bp.route('/cliente/<int:cliente_id>', methods=['GET'])
 def get_pedidos_by_cliente(cliente_id):
-    """Retorna todos os pedidos de um cliente específico"""
-    pedidos = Pedido.query.filter_by(cliente_id=cliente_id).all()
-    return jsonify([p.serialize() for p in pedidos])
+    """Retorna todos os pedidos de um cliente específico usando SQL direto"""
+    print(f"Filtrando pedidos para cliente_id: {cliente_id}")
+
+    # Definindo o comando SQL bruto
+    sql = text("SELECT * FROM public.pedidos WHERE cliente_id = :cliente_id")
+
+    # Executando o comando SQL e passando o parâmetro
+    result = db.session.execute(sql, {'cliente_id': cliente_id}).mappings().all()
+
+    # Verifica se há resultados e converte para lista de dicionários
+    pedidos = [dict(row) for row in result] if result else []
+
+    print(f"Pedidos encontrados: {pedidos}")
+    return jsonify(pedidos)
 
 # Incluir novo pedido
 @pedidos_bp.route('/', methods=['POST'])
