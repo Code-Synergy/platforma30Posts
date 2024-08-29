@@ -4,7 +4,6 @@ import jwt
 import datetime
 from . import db
 
-
 # Definindo o modelo de usuários
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'
@@ -22,9 +21,7 @@ class Usuarios(db.Model):
             'email': self.email
         }
 
-
 user_bp = Blueprint('user', __name__)
-
 
 @user_bp.route('/register', methods=['POST'])
 def register():
@@ -33,7 +30,10 @@ def register():
     password = data.get('password')
     email = data.get('email')
 
+    # Use 'pbkdf2:sha256' para gerar o hash da senha
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
+    # Cria um novo usuário
     new_user = Usuarios(username=username, senha=hashed_password, email=email)
 
     try:
@@ -44,14 +44,13 @@ def register():
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
-
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
 
-    user = Usuarios.query.filter_by(username=username).first()
+    user = Usuarios.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.senha, password):
         token = jwt.encode({
@@ -63,10 +62,9 @@ def login():
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 
-
-# Listar todos os pedidos
+# Listar todos os usuários
 @user_bp.route('/', methods=['GET'])
 def get_user():
-    """Retorna todos os pedidos"""
-    user = Usuarios.query.all()
-    return jsonify([p.serialize() for p in user])
+    """Retorna todos os usuários"""
+    users = Usuarios.query.all()
+    return jsonify([user.serialize() for user in users])
