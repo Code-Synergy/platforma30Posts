@@ -7,13 +7,13 @@ class Legenda(db.Model):
     __tablename__ = 'legendas'
 
     id_legenda = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id_form = db.Column(db.Integer, db.ForeignKey('formulario_cliente.form_id'), nullable=False)
-    dia_post = db.Column(db.String(10), nullable=False)
+    id_form = db.Column(db.Integer, nullable=False)
+    dia_post = db.Column(db.Integer, nullable=False)
     ds_legenda = db.Column(db.Text, nullable=False)
-    img_legenda = db.Column(db.Text)
-    bl_aprovado = db.Column(db.Boolean, default=False)
-    bl_revisar = db.Column(db.Boolean, default=False)
-    ds_revisao = db.Column(db.Text)
+    img_legenda = db.Column(db.Text, nullable=True)
+    bl_aprovado = db.Column(db.Boolean, default=False, nullable=True)
+    bl_revisar = db.Column(db.Boolean, default=False, nullable=True)
+    ds_revisao = db.Column(db.Text, nullable=True)
 
     def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False, ds_revisao=None):
         self.id_form = id_form
@@ -36,46 +36,61 @@ class Legenda(db.Model):
             'ds_revisao': self.ds_revisao
         }
 
+# Listar todas as legendas
 @legendas_bp.route('/', methods=['GET'])
 def get_legendas():
     legendas = Legenda.query.all()
     return jsonify([l.serialize() for l in legendas])
 
+# Adicionar nova legenda
 @legendas_bp.route('/', methods=['POST'])
 def add_legenda():
+    # Recebendo os dados da requisição diretamente
     data = request.get_json()
+
+    # Criando a instância da legenda com os dados recebidos
     legenda = Legenda(
-        id_form=data['id_form'],
-        dia_post=data['dia_post'],
-        ds_legenda=data['ds_legenda'],
-        bl_aprovado=data['bl_aprovado'],
-        bl_revisar=data['bl_revisar'],
-        ds_revisao=data['ds_revisao']
+        id_form=data.get('id_form'),
+        dia_post=data.get('dia_post'),
+        ds_legenda=data.get('ds_legenda'),
+        img_legenda=data.get('img_legenda', None),
+        bl_aprovado=data.get('bl_aprovado', False),
+        bl_revisar=data.get('bl_revisar', False),
+        ds_revisao=data.get('ds_revisao', None)
     )
-    db.session.add(legenda)
-    db.session.commit()
-    return jsonify(legenda.serialize()), 201
 
+    try:
+        # Adiciona e confirma a transação no banco de dados
+        db.session.add(legenda)
+        db.session.commit()
+        # Retorna a legenda adicionada com sucesso
+        return jsonify(legenda.serialize()), 201
+    except Exception as e:
+        # Reverte a transação em caso de erro
+        db.session.rollback()
+        return jsonify({"error": "Erro ao adicionar legenda", "details": str(e)}), 400
 
-@legendas_bp.route('/<int:id_legenda>/<int:id_form>/<string:dia_post>', methods=['PUT'])
-def update_legenda(id_legenda, id_form, dia_post):
-    legenda = Legenda.query.filter_by(id_legenda=id_legenda, id_form=id_form, dia_post=dia_post).first_or_404()
+# Atualizar legenda existente
+@legendas_bp.route('/<int:id_legenda>', methods=['PUT'])
+def update_legenda(id_legenda):
+    legenda = Legenda.query.get_or_404(id_legenda)
     data = request.get_json()
 
+    legenda.id_form = data.get('id_form', legenda.id_form)
+    legenda.dia_post = data.get('dia_post', legenda.dia_post)
     legenda.ds_legenda = data.get('ds_legenda', legenda.ds_legenda)
-    legenda.img_legenda = data.get('img_legenda', legenda.img_legenda)  # Atualiza img_legenda
-    legenda.bl_aprovado = data.get('bl_aprovado', legenda.bl_aprovado)  # Atualiza bl_aprovado
-    legenda.bl_revisar = data.get('bl_revisar', legenda.bl_revisar)  # Atualiza bl_revisar
-    legenda.ds_revisao = data.get('ds_revisao', legenda.ds_revisao)  # Atualiza ds_revisao
+    legenda.img_legenda = data.get('img_legenda', legenda.img_legenda)
+    legenda.bl_aprovado = data.get('bl_aprovado', legenda.bl_aprovado)
+    legenda.bl_revisar = data.get('bl_revisar', legenda.bl_revisar)
+    legenda.ds_revisao = data.get('ds_revisao', legenda.ds_revisao)
 
     db.session.commit()
     return jsonify(legenda.serialize())
 
-
-@legendas_bp.route('/<int:id_legenda>/<int:id_form>/<string:dia_post>', methods=['DELETE'])
-def delete_legenda(id_legenda, id_form, dia_post):
-    legenda = Legenda.query.filter_by(id_legenda=id_legenda, id_form=id_form, dia_post=dia_post).first_or_404()
+# Deletar legenda
+@legendas_bp.route('/<int:id_legenda>', methods=['DELETE'])
+def delete_legenda(id_legenda):
+    legenda = Legenda.query.get_or_404(id_legenda)
     db.session.delete(legenda)
     db.session.commit()
     return '', 204
-
