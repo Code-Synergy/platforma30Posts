@@ -4,6 +4,14 @@ import jwt
 import datetime
 from . import db
 
+# Definindo o modelo de perfis
+class Perfis(db.Model):
+    __tablename__ = 'perfis'
+
+    perfil_id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(255), unique=True, nullable=False)
+
+
 # Definindo o modelo de usuários
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'
@@ -12,6 +20,11 @@ class Usuarios(db.Model):
     username = db.Column(db.String(255), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
+    perfil_id = db.Column(db.Integer, db.ForeignKey('perfis.perfil_id'), nullable=True)
+
+    # Relacionamento com a tabela Perfis
+    perfil = db.relationship('Perfis', backref='usuarios')
+
 
 user_bp = Blueprint('user', __name__)
 
@@ -21,12 +34,13 @@ def register():
     username = data.get('username')
     password = data.get('password')
     email = data.get('email')
+    perfil_id = data.get('perfil_id')
 
     # Use 'pbkdf2:sha256' para gerar o hash da senha
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
     # Cria um novo usuário
-    new_user = Usuarios(username=username, senha=hashed_password, email=email)
+    new_user = Usuarios(username=username, senha=hashed_password, email=email, perfil_id=perfil_id)
 
     try:
         db.session.add(new_user)
@@ -46,6 +60,7 @@ def login():
 
     if user and check_password_hash(user.senha, password):
         token = jwt.encode({
+            'perfil': user.perfil_id,
             'user_id': user.usuario_id,
             'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
