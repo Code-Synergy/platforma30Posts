@@ -26,6 +26,14 @@ class Usuarios(db.Model):
     perfil = db.relationship('Perfis', backref='usuarios')
 
 
+    # Método serialize
+    def serialize(self):
+        return {
+            'usuario_id': self.usuario_id,
+            'username': self.username,
+            'email': self.email
+        }
+
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/register', methods=['POST'])
@@ -53,10 +61,10 @@ def register():
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
 
-    user = Usuarios.query.filter_by(username=username).first()
+    user = Usuarios.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.senha, password):
         token = jwt.encode({
@@ -68,3 +76,10 @@ def login():
         return jsonify({'token': token}), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+
+# Listar todos os usuários
+@user_bp.route('/', methods=['GET'])
+def get_user():
+    """Retorna todos os usuários"""
+    users = Usuarios.query.all()
+    return jsonify([user.serialize() for user in users])
