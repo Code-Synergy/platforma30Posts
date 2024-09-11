@@ -57,7 +57,7 @@ def search_clientes():
     return jsonify([c.serialize() for c in clientes])
 
 
-@clientes_bp.route('/LoginSearch', methods=['GET'])
+@clientes_bp.route('/LoginSearch', methods=['POST'])
 def search_clientesbyemail():
     data = request.get_json()
     email = data.get('email')
