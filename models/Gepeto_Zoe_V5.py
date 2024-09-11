@@ -78,6 +78,23 @@ def processar_legendas():
             #    print('*************************************************************************')
             #    print('*************************************************************************')
 
+            #GERAR IMAGEM
+
+            data_img = {
+                "prompt": output,
+                "n": 1,
+                "size": "1024x1024"
+            }
+
+            response_img = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=data_img)
+            if response_img.status_code == 200:
+                image_url = response_img.json()['data'][0]['url']
+            else:
+                print(f"Erro ao gerar imagem: {response.text}")
+                return None
+
+            print(image_url)
+
             legenda_data = {
                 "id_form": '1',  # ID fixo vindo de outra fonte
                 "dia_post": 1,
