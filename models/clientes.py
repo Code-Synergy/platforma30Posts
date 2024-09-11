@@ -59,10 +59,10 @@ def search_clientes():
 
 @clientes_bp.route('/LoginSearch', methods=['GET'])
 def search_clientesbyemail():
-    email = request.args.get('email', '')
-
+    data = request.get_json()
+    email = data.get('email')
     # Pesquisa por clientes cujo nome contém a string fornecida (case-insensitive)
-    clientes = Cliente.query.filter(Cliente.nome.ilike(f'%{email}%')).all()
+    clientes = Cliente.query.filter(Cliente.email.ilike(f'%{email}%')).all()
 
     return jsonify([c.serialize() for c in clientes])
 
