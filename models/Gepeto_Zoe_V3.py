@@ -2,8 +2,6 @@ from flask import request, jsonify, Blueprint, make_response
 import requests
 import json
 
-from models import legendas
-
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
 
