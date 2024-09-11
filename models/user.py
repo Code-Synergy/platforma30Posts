@@ -74,6 +74,7 @@ def login():
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
         return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email}), 200
+    
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 

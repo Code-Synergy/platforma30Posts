@@ -80,7 +80,9 @@ def add_cliente():
         ativo=data.get('ativo', True)
     )
     db.session.add(cliente)
+
     db.session.commit()
+
     return jsonify(cliente.serialize()), 201
 
 @clientes_bp.route('/<int:id>', methods=['PUT'])
