@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from . import db
+from .clientes import Cliente
+
 
 # Definindo o modelo de perfis
 class Perfis(db.Model):
@@ -25,7 +27,6 @@ class Usuarios(db.Model):
     # Relacionamento com a tabela Perfis
     perfil = db.relationship('Perfis', backref='usuarios')
 
-
     # Método serialize
     def serialize(self):
         return {
@@ -34,7 +35,9 @@ class Usuarios(db.Model):
             'email': self.email
         }
 
+
 user_bp = Blueprint('user', __name__)
+
 
 @user_bp.route('/register', methods=['POST'])
 def register():
@@ -53,10 +56,36 @@ def register():
     try:
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({'message': 'User registered successfully'}), 201
+
+        # INSERE CLIENTE
+        try:
+            # Insere o cliente na tabela
+            cliente = Cliente(
+                nome='',
+                contato='',
+                segmento='',
+                telefone='',
+                email=email,
+                pais='',
+                tipo_cliente_id=0,
+                ativo=True
+            )
+            db.session.add(cliente)
+            print('Vai inserir cliente')
+            db.session.commit()
+            print('Vai INSERIU FDP')
+
+            return jsonify(cliente.serialize()), 201
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+
+
 
 @user_bp.route('/login', methods=['POST'])
 def login():
@@ -77,6 +106,7 @@ def login():
 
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+
 
 # Listar todos os usuários
 @user_bp.route('/', methods=['GET'])
