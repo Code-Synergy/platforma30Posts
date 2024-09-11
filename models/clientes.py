@@ -3,6 +3,7 @@ from . import db
 
 clientes_bp = Blueprint('clientes', __name__)
 
+
 class Cliente(db.Model):
     __tablename__ = 'clientes'
 
@@ -39,6 +40,7 @@ class Cliente(db.Model):
             'ativo': self.ativo
         }
 
+
 @clientes_bp.route('/', methods=['GET'])
 def get_clientes():
     clientes = Cliente.query.all()
@@ -55,9 +57,8 @@ def search_clientes():
     return jsonify([c.serialize() for c in clientes])
 
 
-
 @clientes_bp.route('/LoginSearch', methods=['GET'])
-def search_clientes():
+def search_clientesbyemail():
     email = request.args.get('email', '')
 
     # Pesquisa por clientes cujo nome contém a string fornecida (case-insensitive)
@@ -85,6 +86,7 @@ def add_cliente():
 
     return jsonify(cliente.serialize()), 201
 
+
 @clientes_bp.route('/<int:id>', methods=['PUT'])
 def update_cliente(id):
     cliente = Cliente.query.get_or_404(id)
@@ -101,6 +103,7 @@ def update_cliente(id):
 
     db.session.commit()
     return jsonify(cliente.serialize())
+
 
 @clientes_bp.route('/<int:id>', methods=['DELETE'])
 def delete_cliente(id):
