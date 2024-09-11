@@ -6,6 +6,7 @@ from models.formulario_cliente import FormularioCliente
 from models.negocios import Negocio
 from models.ordens_de_servico import OrdemDeServico
 from models.pedido import Pedido
+from models.user import Usuarios
 from utils.token_verify import token_required
 
 orquestra_bp = Blueprint('orquestra', __name__)
@@ -16,6 +17,8 @@ def GeraPedido(token_data):
 
     user_id = token_data.get('user_id')
 
+    user = Usuarios.query.get_or_404(user_id)
+    
     # Adiciona um negócio
     negocio = Negocio(
         cliente_id=user_id,
@@ -59,7 +62,7 @@ def GeraPedido(token_data):
         ordem_id=ordem.ordem_id,
         nome_cliente='',
         whatsapp_cliente='',
-        email_cliente='email'
+        email_cliente=user.email
     )
     db.session.add(formulario)
     db.session.commit()
