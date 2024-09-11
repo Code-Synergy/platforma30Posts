@@ -2,6 +2,7 @@ from flask import request, jsonify, Blueprint, make_response
 import requests
 import json
 import re
+
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
 
@@ -51,44 +52,53 @@ def processar_legendas():
             output = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
             print(output)
 
-            # Dividindo o output em partes baseadas no padrão "**Número"
-            partes = re.split(r'###\s*(\d+)', output)
+            # Verifica qual padrão está presente no output e divide o texto conforme o padrão encontrado
+            #if '###' in output:
+            #    partes = re.split(r'###\s*(\d+)', output)  # Padrão "### Número"
+            #elif '**' in output:
+            #    partes = re.split(r'\*\*(\d+)', output)  # Padrão "**Número"
+            #else:
+            #    return jsonify({"error": "Nenhum padrão reconhecido encontrado no texto."}), 400
 
-            # Iterando sobre as partes e enviando cada legenda separadamente
-            for i in range(1, len(partes), 2):
-                print('*************************************************************************')
-                dia_post = int(partes[i])  # Número após "###"
-                print(dia_post)
-                texto_legenda = partes[i + 1].strip()  # Texto da legenda
-                print(texto_legenda)
+            ## Iterando sobre as partes e enviando cada legenda separadamente
+            #for i in range(1, len(partes), 2):
+            #    print('*************************************************************************')
+            #    dia_post = int(partes[i])  # Número após "###"
+            #    print(dia_post)
+            #    texto_legenda = partes[i + 1].strip()  # Texto da legenda
+            #    print(texto_legenda)
 
-                legenda_data = {
-                    "id_form": '1',  # ID fixo vindo de outra fonte
-                    "dia_post": dia_post,
-                    "ds_legenda": texto_legenda,
-                    "bl_aprovado": False,
-                    "bl_revisar": False,
-                    "ds_revisao": None
-                }
-                print('*************************************************************************')
-                print('*************************************************************************')
+            #    legenda_data = {
+            #        "id_form": '1',  # ID fixo vindo de outra fonte
+            #        "dia_post": dia_post,
+            #        "ds_legenda": texto_legenda,
+            #        "bl_aprovado": False,
+            #        "ds_revisao": None
+            #    }
+            #    print('*************************************************************************')
+            #    print('*************************************************************************')
 
-                # Enviando a legenda usando o serviço de legendas
-                legenda_response = requests.post(
-                    "http://127.0.0.1:5000/legendas/",
-                    json=legenda_data
-                )
+            legenda_data = {
+                "id_form": '1',  # ID fixo vindo de outra fonte
+                "dia_post": 1,
+                "ds_legenda": output,
+                "bl_aprovado": False,
+                "ds_revisao": None
+            }
 
-                if legenda_response.status_code == 201:
-                    print(f"Legenda para o dia {dia_post} enviada com sucesso.")
-                else:
-                    print(f"Erro ao enviar legenda para o dia {dia_post}: {legenda_response.text}")
 
-            return jsonify({"message": "Legendas processadas e enviadas com sucesso."}), 201
+            # Enviando a legenda usando o serviço de legendas
+            legenda_response = requests.post(
+                "http://127.0.0.1:5000/legendas/",
+                json=legenda_data
+            )
 
-        else:
-            return jsonify({"error": "Erro na resposta da API OpenAI", "details": response.text}), 500
+            if legenda_response.status_code == 201:
+                print(f"Legenda para o dia {1} enviada com sucesso.")
+            else:
+                print(f"Erro ao enviar legenda para o dia {1}: {legenda_response.text}")
+
+        return jsonify({"message": "Legendas processadas e enviadas com sucesso."}), 201
 
     except Exception as e:
         return jsonify({"error": "Erro ao processar legendas", "details": str(e)}), 500
-
