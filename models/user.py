@@ -73,7 +73,7 @@ def login():
             'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
-        return jsonify({'token': token, 'perfil': user.perfil_id}), 200
+        return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email}), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 
