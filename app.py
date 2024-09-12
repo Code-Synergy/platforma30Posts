@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from models import Gepeto_Zoe_V5, db, clientes, pedido, ordens_de_servico, negocios, send_form, validar_id_form, workflow, legendas, tipo_cliente, user
+from models import Gepeto_Zoe_V5, db, clientes, pedido, ordens_de_servico, negocios, send_form, validar_id_form, \
+    workflow, legendas, tipo_cliente, user, disparar
 from config import Config
 from flask_cors import CORS
+import orquestra
 
 from models import formulario_cliente
 
@@ -31,6 +33,9 @@ app.register_blueprint(send_form.form_bp, url_prefix='/form')
 app.register_blueprint(pedido.pedidos_bp, url_prefix='/pedidos')
 app.register_blueprint(Gepeto_Zoe_V5.zoe_bp, url_prefix='/zoe')
 
+app.register_blueprint(orquestra.orquestra_bp, url_prefix='/orquestra')
+
+app.register_blueprint(disparar.disparar_bp, url_prefix='/disparar')
 
 if __name__ == '__main__':
     app.run(debug=True)
