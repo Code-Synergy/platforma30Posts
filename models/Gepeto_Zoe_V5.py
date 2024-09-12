@@ -3,6 +3,8 @@ import requests
 import json
 import re
 
+from models.Zoe_Img import gerar_imagem
+
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
 
@@ -52,55 +54,25 @@ def processar_legendas():
             output = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
             print(output)
 
-            # Verifica qual padrão está presente no output e divide o texto conforme o padrão encontrado
-            #if '###' in output:
-            #    partes = re.split(r'###\s*(\d+)', output)  # Padrão "### Número"
-            #elif '**' in output:
-            #    partes = re.split(r'\*\*(\d+)', output)  # Padrão "**Número"
-            #else:
-            #    return jsonify({"error": "Nenhum padrão reconhecido encontrado no texto."}), 400
+            ur_limg = gerar_imagem(output)
+            print('**************************************************')
+            print('**************************************************')
+            print('**************************************************')
+            print('**************************************************')
 
-            ## Iterando sobre as partes e enviando cada legenda separadamente
-            #for i in range(1, len(partes), 2):
-            #    print('*************************************************************************')
-            #    dia_post = int(partes[i])  # Número após "###"
-            #    print(dia_post)
-            #    texto_legenda = partes[i + 1].strip()  # Texto da legenda
-            #    print(texto_legenda)
+            print(ur_limg)
 
-            #    legenda_data = {
-            #        "id_form": '1',  # ID fixo vindo de outra fonte
-            #        "dia_post": dia_post,
-            #        "ds_legenda": texto_legenda,
-            #        "bl_aprovado": False,
-            #        "ds_revisao": None
-            #    }
-            #    print('*************************************************************************')
-            #    print('*************************************************************************')
-
-            #GERAR IMAGEM
-
-            data_img = {
-                "prompt": output,
-                "n": 1,
-                "size": "1024x1024"
-            }
-
-            response_img = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=data_img)
-            if response_img.status_code == 200:
-                image_url = response_img.json()['data'][0]['url']
-            else:
-                print(f"Erro ao gerar imagem: {response.text}")
-                return None
-
-            print(image_url)
+            print('**************************************************')
+            print('**************************************************')
+            print('**************************************************')
 
             legenda_data = {
                 "id_form": '1',  # ID fixo vindo de outra fonte
                 "dia_post": 1,
                 "ds_legenda": output,
-                "bl_aprovado": False,
-                "ds_revisao": None
+                "img_legenda": ur_limg,
+                "bl_aprovado": True,
+                "ds_revisao": ''
             }
 
 
