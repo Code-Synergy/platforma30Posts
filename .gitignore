@@ -94,3 +94,5 @@ celerybeat.pid
 misc.xml
 platforma30Posts.iml
 workspace.xml
+
+.idea
