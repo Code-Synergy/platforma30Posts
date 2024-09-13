@@ -3,6 +3,7 @@ from . import db
 
 legendas_bp = Blueprint('legendas', __name__)
 
+
 class Legenda(db.Model):
     __tablename__ = 'legendas'
 
@@ -15,7 +16,8 @@ class Legenda(db.Model):
     bl_revisar = db.Column(db.Boolean, default=False, nullable=True)
     ds_revisao = db.Column(db.Text, nullable=True)
 
-    def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False, ds_revisao=None):
+    def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False,
+                 ds_revisao=None):
         self.id_form = id_form
         self.dia_post = dia_post
         self.ds_legenda = ds_legenda
@@ -36,19 +38,24 @@ class Legenda(db.Model):
             'ds_revisao': self.ds_revisao
         }
 
+
 # Listar todas as legendas
 @legendas_bp.route('/', methods=['GET'])
 def get_legendas():
     legendas = Legenda.query.all()
     return jsonify([l.serialize() for l in legendas])
 
+
 # Adicionar nova legenda
 @legendas_bp.route('/', methods=['POST'])
 def add_legenda():
     # Recebendo os dados da requisição diretamente
     data = request.get_json()
+    return Legenda(data)
 
+def geraLegenda(data):
     # Criando a instância da legenda com os dados recebidos
+    print(data)
     legenda = Legenda(
         id_form=data.get('id_form'),
         dia_post=data.get('dia_post'),
@@ -60,15 +67,24 @@ def add_legenda():
     )
 
     try:
+        print('***********************************************')
+        print(legenda.id_form)
+
         # Adiciona e confirma a transação no banco de dados
         db.session.add(legenda)
         db.session.commit()
+        print('***********************************************')
+        print('COMITOU')
+        print('***********************************************')
+
         # Retorna a legenda adicionada com sucesso
         return jsonify(legenda.serialize()), 201
     except Exception as e:
         # Reverte a transação em caso de erro
         db.session.rollback()
+        print(e)
         return jsonify({"error": "Erro ao adicionar legenda", "details": str(e)}), 400
+
 
 # Atualizar legenda existente
 @legendas_bp.route('/<int:id_legenda>', methods=['PUT'])
@@ -86,6 +102,7 @@ def update_legenda(id_legenda):
 
     db.session.commit()
     return jsonify(legenda.serialize())
+
 
 # Deletar legenda
 @legendas_bp.route('/<int:id_legenda>', methods=['DELETE'])
