@@ -3,6 +3,9 @@ import requests
 import json
 import re
 
+from models import legendas
+from models.Zoe_Img import gerar_imagem
+
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
 
@@ -21,6 +24,10 @@ def processar_legendas():
     if not textao:
         return jsonify({"error": "Texto de entrada não fornecido."}), 400
 
+    return processar_legendas(textao)
+
+
+def processar_legendas(textao, form_id=0):
     try:
         with open('./models/promptBase.txt', 'r', encoding='utf8') as arquivo:
             BASE = arquivo.read()
@@ -52,51 +59,26 @@ def processar_legendas():
             output = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
             print(output)
 
-            # Verifica qual padrão está presente no output e divide o texto conforme o padrão encontrado
-            #if '###' in output:
-            #    partes = re.split(r'###\s*(\d+)', output)  # Padrão "### Número"
-            #elif '**' in output:
-            #    partes = re.split(r'\*\*(\d+)', output)  # Padrão "**Número"
-            #else:
-            #    return jsonify({"error": "Nenhum padrão reconhecido encontrado no texto."}), 400
-
-            ## Iterando sobre as partes e enviando cada legenda separadamente
-            #for i in range(1, len(partes), 2):
-            #    print('*************************************************************************')
-            #    dia_post = int(partes[i])  # Número após "###"
-            #    print(dia_post)
-            #    texto_legenda = partes[i + 1].strip()  # Texto da legenda
-            #    print(texto_legenda)
-
-            #    legenda_data = {
-            #        "id_form": '1',  # ID fixo vindo de outra fonte
-            #        "dia_post": dia_post,
-            #        "ds_legenda": texto_legenda,
-            #        "bl_aprovado": False,
-            #        "ds_revisao": None
-            #    }
-            #    print('*************************************************************************')
-            #    print('*************************************************************************')
+            ur_limg = gerar_imagem(output)
 
             legenda_data = {
-                "id_form": '1',  # ID fixo vindo de outra fonte
+                "id_form": form_id,  # ID fixo vindo de outra fonte
                 "dia_post": 1,
                 "ds_legenda": output,
-                "bl_aprovado": False,
-                "ds_revisao": None
+                "img_legenda": ur_limg,
+                "bl_aprovado": True,
+                "ds_revisao": ''
             }
 
-
+            print('ENVIANDO LEGENDAS....')
             # Enviando a legenda usando o serviço de legendas
-            legenda_response = requests.post(
-                "http://127.0.0.1:5000/legendas/",
-                json=legenda_data
-            )
+            legenda_response = legendas.geraLegenda(legenda_data)
 
-            if legenda_response.status_code == 201:
-                print(f"Legenda para o dia {1} enviada com sucesso.")
-            else:
-                print(f"Erro ao enviar legenda para o dia {1}: {legenda_response.text}")
+            #VERIFICAR VALIDACAO RETORNO
+            #if legenda_response.status_code == 201:
+            #    print(f"Legenda para o dia {1} enviada com sucesso.")
+            #else:
+            #    print(f"Erro ao enviar legenda para o dia {1}: {legenda_response.text}")
 
         return jsonify({"message": "Legendas processadas e enviadas com sucesso."}), 201
 

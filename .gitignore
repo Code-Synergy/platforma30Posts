@@ -90,3 +90,9 @@ celerybeat.pid
 
 *.xml
 .vercel
+
+misc.xml
+platforma30Posts.iml
+workspace.xml
+
+.idea
