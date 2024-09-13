@@ -80,8 +80,8 @@ def gerar_imagem(texto):
         if supabase_response:
             print(f"Imagem salva no Supabase: {supabase_response}")
 
-            file.close()
-            os.remove(caminho_arquivo)
+            #file.close()
+            #os.remove(caminho_arquivo)
         else:
             print("Erro ao fazer upload para o Supabase.")
 
