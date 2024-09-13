@@ -22,6 +22,7 @@ def valida_id_form(id):
                 }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
                 return jsonify({
                     'token': token,
+                    'product': ordem.id_produto,
                     'status': workflow.workflow_id
                 }), 200
     return jsonify({'message': 'Not Found!'}), 404
