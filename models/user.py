@@ -3,7 +3,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from . import db
+from .TigorAPI import TigorAPI
 from .clientes import Cliente
+import random
+import string
 
 
 # Definindo o modelo de perfis
@@ -86,7 +89,6 @@ def register():
         return jsonify({'error': str(e)}), 400
 
 
-
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -114,3 +116,58 @@ def get_user():
     """Retorna todos os usuários"""
     users = Usuarios.query.all()
     return jsonify([user.serialize() for user in users])
+
+
+@user_bp.route('/registerWhats', methods=['POST'])
+def registerWhats():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    telefone = data.get('telefone')
+    perfil_id = 1
+    password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+    # Use 'pbkdf2:sha256' para gerar o hash da senha
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
+    # Cria um novo usuário
+    new_user = Usuarios(username=username, senha=hashed_password, email=email, perfil_id=perfil_id)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+
+        # INSERE CLIENTE
+        try:
+            # Insere o cliente na tabela
+            cliente = Cliente(
+                nome=username,
+                contato='',
+                segmento='',
+                telefone=telefone,
+                email=email,
+                pais='',
+                tipo_cliente_id=0,
+                ativo=True
+            )
+            db.session.add(cliente)
+            print('Vai inserir cliente')
+            db.session.commit()
+            mensagem = 'Seu usuário par acesso a plataforma foi criado com sucesso! \nSua senha de acesso a plataforma é: ' + password
+
+            # usuário criado, avisar cliente
+            tigor = TigorAPI(number=telefone, message=mensagem, type="text", url="")
+            # Enviando a mensagem
+            tigor.send_message()
+
+            return jsonify(cliente.serialize()), 201
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 400
+
+
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
