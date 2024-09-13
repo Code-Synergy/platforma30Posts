@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from . import db
+from .formulario_cliente import FormularioCliente
+from .ordens_de_servico import OrdemDeServico
 
 clientes_bp = Blueprint('clientes', __name__)
 
@@ -111,3 +113,27 @@ def delete_cliente(id):
     db.session.delete(cliente)
     db.session.commit()
     return '', 204
+
+
+def consultaTele(id_form):
+    # Pesquisa por id do cliente e retornar o telefone
+    print('CONSULTANTADO TELE....')
+    #formularios = FormularioCliente.query.filter(FormularioCliente.id_form == id_form).first()
+    result = FormularioCliente.query.with_entities(FormularioCliente.ordem_id,
+                                                   FormularioCliente.whatsapp_cliente).filter(
+        FormularioCliente.id_form == id_form).first()
+
+    # Extrai os valores dos campos, caso não seja None
+    ordem_id = result[0] if result else None
+    whatsapp_cliente = result[1] if result else None
+    print('Ordem ID: ' + str(ordem_id))
+    print('WhatsAPP: ' + str(whatsapp_cliente))
+
+    #ordens = OrdemDeServico.query.filter(OrdemDeServico.id == ordem_id).first()
+    #id_cliente = ordens.get('usuario_id')
+    #print('Buscou Cliente na Ordem: ' + id_cliente)
+
+    #clientes = Cliente.query.filter(Cliente.cliente_id.ilike(id_cliente)).all()
+    #telefone = clientes.get('telefone')
+    #print('Pegou o telefone do cliente:' + telefone)
+    return whatsapp_cliente

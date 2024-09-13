@@ -2,6 +2,7 @@ import requests
 from flask import Flask, request, jsonify, Blueprint
 
 from models import Gepeto_Zoe_V5
+from models.clientes import consultaTele
 from utils.token_verify import token_required
 
 disparar_bp = Blueprint('disparar', __name__)
@@ -12,7 +13,8 @@ disparar_bp = Blueprint('disparar', __name__)
 def disparar_chamadas(token_data):
     form_id = token_data.get('id')
     print(form_id)
-
+    user_id = token_data.get('user_id')
+    print(user_id)
     data = request.get_json()
 
     # Verifica se o JSON contém uma lista de informações
