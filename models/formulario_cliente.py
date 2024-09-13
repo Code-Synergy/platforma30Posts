@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import DateTime, func
 from . import db
 from utils.token_verify import token_required  
 
@@ -62,6 +63,8 @@ class FormularioCliente(db.Model):
     url_imagem_28 = db.Column(db.String(255))
     url_imagem_29 = db.Column(db.String(255))
     url_imagem_30 = db.Column(db.String(255))
+    created_at = db.Column(DateTime, default=func.now())
+    updated_at = db.Column(DateTime, default=func.now(), onupdate=func.now())
 
     def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio=None, whatsapp_negocio=None,
                  nicho=None, site=None, perfis_redes_sociais_1=None, perfis_redes_sociais_2=None, perfis_redes_sociais_3=None,
