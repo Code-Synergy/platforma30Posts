@@ -1,5 +1,11 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import desc
+
+from models.formulario_cliente import FormularioCliente
+from models.ordens_de_servico import OrdemDeServico
+from utils.token_verify import token_required
 from . import db
+from sqlalchemy import desc
 
 legendas_bp = Blueprint('legendas', __name__)
 
@@ -40,11 +46,31 @@ class Legenda(db.Model):
 
 
 # Listar todas as legendas
-@legendas_bp.route('/', methods=['GET'])
-def get_legendas():
+@legendas_bp.route('/allA', methods=['GET'])
+def get_legendas_all():
     legendas = Legenda.query.all()
     return jsonify([l.serialize() for l in legendas])
 
+@legendas_bp.route('/', methods=['GET'])
+@token_required
+def get_legendas(token_data):
+    usuario_id = token_data.get('user_id')
+    # Buscar o formulário mais recente associado ao usuário
+    ultimo_formulario = (FormularioCliente.query
+                         .join(OrdemDeServico, FormularioCliente.ordem_id == OrdemDeServico.ordem_id)
+                         .filter(OrdemDeServico.usuario_id == usuario_id)
+                         .order_by(desc(FormularioCliente.updated_at))
+                         .first())
+
+    if not ultimo_formulario:
+        return jsonify({"error": "Nenhum formulário encontrado para esse usuário"}), 404
+    
+    # Buscar as legendas associadas ao último formulário
+    legendas = (Legenda.query
+                .filter_by(id_form=ultimo_formulario.id_form)
+                .all())
+
+    return jsonify([l.serialize() for l in legendas])
 
 # Adicionar nova legenda
 @legendas_bp.route('/', methods=['POST'])
