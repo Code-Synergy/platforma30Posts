@@ -11,14 +11,14 @@ from utils.token_verify import token_required
 
 orquestra_bp = Blueprint('orquestra', __name__)
 
+
 @orquestra_bp.route('/', methods=['POST'])
 @token_required
 def GeraPedido(token_data):
-
     user_id = token_data.get('user_id')
 
     user = Usuarios.query.get_or_404(user_id)
-    
+
     # Adiciona um negócio
     negocio = Negocio(
         cliente_id=user_id,
