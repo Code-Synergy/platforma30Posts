@@ -2,7 +2,6 @@ import os
 import random
 import re
 import string
-import openai
 
 from flask import request, jsonify, Blueprint, make_response
 import requests
