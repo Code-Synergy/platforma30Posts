@@ -134,16 +134,20 @@ def registerWhats():
     email = data.get('email')
     telefone = data.get('telefone')
     perfil_id = 2
-    password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-
-    # Use 'pbkdf2:sha256' para gerar o hash da senha
-    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
     try:
-        # Cria um utilizador
-        new_user = Usuarios(username=username, senha=hashed_password, email=email, perfil_id=perfil_id)
-        print('VAI ADICIONAR')
-        db.session.add(new_user)
-        db.session.commit()
+        #new_user SE EXISTE UM USUÁRIO
+        new_user = Usuarios.query.filter_by(email=email).first()
+        if new_user is None:
+#            return jsonify({'message': 'Usuário já existe'}), 400
+#        else:
+            # Cria um utilizador
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            # Use 'pbkdf2:sha256' para gerar o hash da senha
+            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            new_user = Usuarios(username=username, senha=hashed_password, email=email, perfil_id=perfil_id)
+            print('VAI ADICIONAR')
+            db.session.add(new_user)
+            db.session.commit()
 
         # INSERE CLIENTE
         try:
@@ -161,7 +165,8 @@ def registerWhats():
             db.session.add(cliente)
             print('Vai inserir cliente')
             db.session.commit()
-            mensagem = 'Seu usuário para acesso à plataforma foi criado com sucesso! \nSua senha de acesso à plataforma é: ' + password
+
+            #mensagem = 'Seu usuário para acesso à plataforma foi criado com sucesso! \nSua senha de acesso à plataforma é: ' + password
 
             # INSERIR NEGOCIO
             try:
@@ -249,15 +254,15 @@ def registerWhats():
 
             envioLegenda = processar_legendas(data,form.id_form )
             # VERIFICAR VALIDAÇÃO RETORNO
-            if envioLegenda.status_code == 201:
-                print(f"Legenda para o dia {1} enviada com sucesso.")
-            else:
-                print(f"Erro ao enviar legenda para o dia {1}: {envioLegenda.text}")
-
+            print('**********************************************')
+            print('VOLTOU DO ENVIO')
+            print('**********************************************')
             return jsonify(cliente.serialize()), 201
 
         except Exception as e:
             db.session.rollback()
+            error_message = str(e)
+            print(error_message)
             return jsonify({'error': 'Erro ao inserir o cliente. Tente novamente.'}), 400
 
     except IntegrityError as e:
