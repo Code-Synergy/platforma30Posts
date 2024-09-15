@@ -30,9 +30,14 @@ def processar_fluxo1():
 
 
 def processar_legendas(data, form_id=0):
+    print('**************************************')
+    print('PROCESSANDO LEGENDAS DO FORM:' + str(form_id))
+    print('**************************************')
+
     nomenegocio = data.get("nomenegocio")
     socialmedia = data.get("socialmedia")
     objetivo = data.get("objetivo")
+    telefone = data.get("telefone")
 
     try:
         with open('./models/promptFluxo1.txt', 'r', encoding='utf8') as arquivo:
@@ -151,6 +156,51 @@ def processar_legendas(data, form_id=0):
                         print('ENVIANDO LEGENDAS....')
                         # Enviando a legenda usando o serviço de legendas
                         legenda_response = legendas.geraLegenda(legenda_data)
+                        print('ENVIADAS AS LEGENDAS!!!')
+                        print('ESTA AQUI SEU POST: ' + output)
+
+                        URLTigor = "https://tigor.itlabs.app/wpp/api"
+                        payload = {
+                            "app": "3bd82d2e-3077-4226-a366-1338eb3ed589",
+                            "number": telefone,
+                            "message": "Parabens! Seu post chegou! \n " + output,
+                            "type": "text",
+                            "url": ""
+                        }
+
+                        headers = {
+                            "Content-Type": "application/json"  # Define que o conteúdo enviado é JSON
+                        }
+
+                        responseWhats = requests.post(URLTigor, json=payload, headers=headers)
+
+                        if responseWhats.status_code == 200 or responseWhats.status_code == 201:
+                            print('POST enviado ao cliente com com sucesso!')
+                        else:
+                            print('Erro ao enviar post ao cliente:')
+                            print(responseWhats.text)
+
+                        payload_img = {
+                            "app": "3bd82d2e-3077-4226-a366-1338eb3ed589",
+                            "number": telefone,
+                            "message": "esse é sugestão de imagem para seu post! \n ",
+                            "type": "image",
+                            "url": image_url
+                        }
+
+                        headers = {
+                            "Content-Type": "application/json"  # Define que o conteúdo enviado é JSON
+                        }
+
+                        responseWhats = requests.post(URLTigor, json=payload_img, headers=headers)
+
+                        if responseWhats.status_code == 200 or responseWhats.status_code == 201:
+                            print('IMAGEM enviada ao cliente com com sucesso!')
+                        else:
+                            print('Erro ao enviar IMAGEM ao cliente:')
+                            print(responseWhats.text)
+
+                        print('ESTA É SUA IMAGEM: ' + image_url)
 
                         # VERIFICAR VALIDACAO RETORNO
                         if legenda_response.status_code == 201:
@@ -170,6 +220,10 @@ def processar_legendas(data, form_id=0):
             else:
                 return jsonify({"error": "Erro ao processar legendas", "details": str(response_img.text)}), 500
         return jsonify({"message": "Legendas processadas e enviadas com sucesso."}), 201
+
+
+
+
 
     except Exception as e:
         return jsonify({"error": "Erro ao processar legendas", "details": str(e)}), 500
