@@ -1,21 +1,17 @@
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-import datetime
 from . import db
 from .Gepeto_Zoe_Fluxo1 import processar_legendas
-from .TigorAPI import TigorAPI
 from .clientes import Cliente
 import random
 import string
 from sqlalchemy.exc import IntegrityError
-
 from .formulario_cliente import FormularioCliente
 from .negocios import Negocio
 from .ordens_de_servico import OrdemDeServico
 from .pedido import Pedido
-from datetime import datetime
-import uuid
+from datetime import datetime, timezone, timedelta
 
 
 # Definindo o modelo de perfis
@@ -110,7 +106,7 @@ def login():
         token = jwt.encode({
             'perfil': user.perfil_id,
             'user_id': user.usuario_id,
-            'exp': datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+            'exp': datetime.now(timezone.utc) + timedelta(hours=1)
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
         return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email}), 200
