@@ -29,7 +29,7 @@ def processar_fluxo1():
     return processar_legendas(data, form_id)
 
 
-def processar_legendas(data, form_id):
+def processar_legendas(data, form_id=0):
     nomenegocio = data.get("nomenegocio")
     socialmedia = data.get("socialmedia")
     objetivo = data.get("objetivo")
