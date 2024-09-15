@@ -9,6 +9,7 @@ import json
 
 from models import legendas
 from models.Zoe_Img import gerar_imagem, upload_to_supabase
+from utils.token_verify import token_required
 
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
@@ -28,6 +29,19 @@ def processar_fluxo1():
 
     return processar_legendas(data, form_id)
 
+
+@zoeFluxo1_bp.route('/site', methods=['POST'])
+@token_required
+def processar_fluxo1_site(token_data):
+    form_id = token_data.get('id')
+    # form_id = 0
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Texto de entrada não fornecido."}), 400
+
+    return processar_legendas(data, form_id)
 
 def processar_legendas(data, form_id=0):
     print('**************************************')
