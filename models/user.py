@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from . import db
+from .Gepeto_Zoe_Fluxo1 import processar_legendas
 from .TigorAPI import TigorAPI
 from .clientes import Cliente
 import random
@@ -155,10 +156,20 @@ def registerWhats():
             db.session.commit()
             mensagem = 'Seu usuário par acesso a plataforma foi criado com sucesso! \nSua senha de acesso a plataforma é: ' + password
 
-            # usuário criado, avisar cliente
-            tigor = TigorAPI(number=telefone, message=mensagem, type="text", url="")
-            # Enviando a mensagem
-            tigor.send_message()
+            print('enviando criaçao da legenda para:')
+
+            nomenegocio = data.get("nomenegocio")
+            socialmedia = data.get("socialmedia")
+            objetivo = data.get("objetivo")
+
+            print(nomenegocio + ' ' + socialmedia + ' ' + objetivo)
+
+            envioLegenda = processar_legendas(data)
+            # VERIFICAR VALIDACAO RETORNO
+            if envioLegenda.status_code == 201:
+                print(f"Legenda para o dia {1} enviada com sucesso.")
+            else:
+                print(f"Erro ao enviar legenda para o dia {1}: {envioLegenda.text}")
 
             return jsonify(cliente.serialize()), 201
 
