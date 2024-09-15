@@ -47,7 +47,7 @@ class Legenda(db.Model):
 
 
 # Listar todas as legendas
-@legendas_bp.route('/allA', methods=['GET'])
+@legendas_bp.route('/all', methods=['GET'])
 def get_legendas_all():
     legendas = Legenda.query.all()
     return jsonify([l.serialize() for l in legendas])
@@ -56,6 +56,7 @@ def get_legendas_all():
 @token_required
 def get_legendas(token_data):
     usuario_id = token_data.get('user_id')
+
     # Buscar o formulário mais recente associado ao usuário
     ultimo_formulario = (FormularioCliente.query
                          .join(OrdemDeServico, FormularioCliente.ordem_id == OrdemDeServico.ordem_id)
