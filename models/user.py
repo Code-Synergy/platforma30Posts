@@ -110,7 +110,7 @@ def login():
         token = jwt.encode({
             'perfil': user.perfil_id,
             'user_id': user.usuario_id,
-            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+            'exp': datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
         return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email}), 200
