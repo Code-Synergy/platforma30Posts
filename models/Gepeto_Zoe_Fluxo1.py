@@ -112,7 +112,7 @@ def processar_legendas(data, form_id=0):
             print(texto_legenda)
             print('**********************************************************')
             print(texto_imagem)
-
+            texto_imagem = texto_imagem + ' inclua o texto: ' + texto_headline + ' na imagem'
             #prompt_imagem = 'Com base no perfil do instagram ' + socialmedia + ', gere uma imagem no formato feed quadrado (1080x1080) que mais se encaixa no nicho e no estilo do usuário. Quero uma cena compatível com conteúdo criado. De preferência para retrato em close-up, tomada autêntica, que transmite a emoção do texto gerado.'
 
             print('GERANDO IMAGEM...')
@@ -120,11 +120,10 @@ def processar_legendas(data, form_id=0):
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {API_KEY}",
-                "OpenAI-Beta": "assistants=v2",
-                "id": "asst_XlQl4tqzHEnlYOC49tkxRgBX"
             }
             # Parâmetros da geração de imagem
             data_img = {
+                "model": "dall-e-3",
                 "prompt": texto_imagem,  # Texto usado para gerar a imagem
                 "n": 1,  # Número de imagens a serem geradas
                 "size": "1024x1024"  # Tamanho da imagem gerada
