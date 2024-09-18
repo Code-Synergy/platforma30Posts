@@ -134,8 +134,6 @@ def registerWhats():
         #new_user SE EXISTE UM USUÁRIO
         new_user = Usuarios.query.filter_by(email=email).first()
         if new_user is None:
-#            return jsonify({'message': 'Usuário já existe'}), 400
-#        else:
             # Cria um utilizador
             password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             # Use 'pbkdf2:sha256' para gerar o hash da senha
@@ -204,9 +202,9 @@ def registerWhats():
                     workflow_id=2,
                     id_negocio=new_deal.negocio_id,
                     id_produto=1,
-                    prazointerno=datetime.now(),  # Usando a data corretamente
-                    prazoexterno=datetime.now(),  # Usando a data corretamente
-                    entrega=datetime.now(),  # Usando a data corretamente
+                    prazointerno=datetime.now(),
+                    prazoexterno=datetime.now(),
+                    entrega=datetime.now(),
                     mensal=False,
                 )
 
