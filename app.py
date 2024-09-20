@@ -6,6 +6,8 @@ from config import Config
 from flask_cors import CORS
 import orquestra
 
+from payment import payment_client, payment_card
+
 from models import formulario_cliente
 
 app = Flask(__name__)
@@ -32,13 +34,11 @@ app.register_blueprint(validar_id_form.valida_id_form_bp, url_prefix='/valida')
 app.register_blueprint(send_form.form_bp, url_prefix='/form')
 app.register_blueprint(pedido.pedidos_bp, url_prefix='/pedidos')
 app.register_blueprint(Gepeto_Zoe_V5.zoe_bp, url_prefix='/zoe')
-
 app.register_blueprint(orquestra.orquestra_bp, url_prefix='/orquestra')
-
 app.register_blueprint(disparar.disparar_bp, url_prefix='/disparar')
-
-
+app.register_blueprint(payment_card.cobranca_bp, url_prefix='/cobrancas')
 app.register_blueprint(Gepeto_Zoe_Fluxo1.zoeFluxo1_bp, url_prefix='/fluxo1')
+app.register_blueprint(payment_client.payment_client_bp, url_prefix='/paymentclient')
 
 
 if __name__ == '__main__':
