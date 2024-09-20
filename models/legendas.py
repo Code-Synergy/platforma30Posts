@@ -52,11 +52,14 @@ def get_legendas_all():
     legendas = Legenda.query.all()
     return jsonify([l.serialize() for l in legendas])
 
+
 @legendas_bp.route('/', methods=['GET'])
 @token_required
 def get_legendas(token_data):
     usuario_id = token_data.get('user_id')
-
+    print('************************************************')
+    print('USUÁRIO DO FORM é: ' + str(usuario_id))
+    print('************************************************')
     # Buscar o formulário mais recente associado ao usuário
     ultimo_formulario = (FormularioCliente.query
                          .join(OrdemDeServico, FormularioCliente.ordem_id == OrdemDeServico.ordem_id)
@@ -66,7 +69,10 @@ def get_legendas(token_data):
 
     if not ultimo_formulario:
         return jsonify({"error": "Nenhum formulário encontrado para esse usuário"}), 404
-    
+
+    print('************************************************')
+    print('FORM é: ' + str(ultimo_formulario.id_form))
+    print('************************************************')
     # Buscar as legendas associadas ao último formulário
     legendas = (Legenda.query
                 .filter_by(id_form=ultimo_formulario.id_form)
@@ -74,12 +80,14 @@ def get_legendas(token_data):
 
     return jsonify([l.serialize() for l in legendas])
 
+
 # Adicionar nova legenda
 @legendas_bp.route('/', methods=['POST'])
 def add_legenda():
     # Recebendo os dados da requisição diretamente
     data = request.get_json()
     return Legenda(data)
+
 
 def geraLegenda(data):
     # Criando a instância da legenda com os dados recebidos
@@ -104,6 +112,30 @@ def geraLegenda(data):
         print('***********************************************')
         print('COMITOU A LEGENDA')
         print('***********************************************')
+
+        print('BORA AVISAR CLIENTE: ....')
+        print("ENVIAR MENSAGEM NO WHATS.....")
+        telefone = consultaTele(form_cliente)
+        URLTigor = "https://tigor.itlabs.app/wpp/api"
+        payload = {
+            "app": "3bd82d2e-3077-4226-a366-1338eb3ed589",
+            "number": telefone,
+            "message": "Parabens! Seu post esta em produção.\n Obrigado por escolher a 30 Posts. \n Após apreciar seu post grátis o que acha de conhecer nossos planos ?",
+            "type": "text",
+            "url": ""
+        }
+
+        headers = {
+            "Content-Type": "application/json"  # Define que o conteúdo enviado é JSON
+        }
+
+        responseWhats = requests.post(URLTigor, json=payload, headers=headers)
+
+        if responseWhats.status_code == 200 or responseWhats.status_code == 201:
+            print('Cliente informado com sucesso!')
+        else:
+            print('Erro ao informar cliente:')
+            print(responseWhats.text)
 
         # Retorna a legenda adicionada com sucesso
         return jsonify(legenda.serialize()), 201
