@@ -47,7 +47,7 @@ class Legenda(db.Model):
 
 
 # Listar todas as legendas
-@legendas_bp.route('/allA', methods=['GET'])
+@legendas_bp.route('/all', methods=['GET'])
 def get_legendas_all():
     legendas = Legenda.query.all()
     return jsonify([l.serialize() for l in legendas])
@@ -110,7 +110,7 @@ def geraLegenda(data):
         db.session.add(legenda)
         db.session.commit()
         print('***********************************************')
-        print('COMITOU')
+        print('COMITOU A LEGENDA')
         print('***********************************************')
 
         print('BORA AVISAR CLIENTE: ....')
