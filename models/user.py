@@ -1,9 +1,17 @@
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-import datetime
 from . import db
+from .Gepeto_Zoe_Fluxo1 import processar_legendas
 from .clientes import Cliente
+import random
+import string
+from sqlalchemy.exc import IntegrityError
+from .formulario_cliente import FormularioCliente
+from .negocios import Negocio
+from .ordens_de_servico import OrdemDeServico
+from .pedido import Pedido
+from datetime import datetime, timezone, timedelta
 
 
 # Definindo o modelo de perfis
@@ -86,7 +94,6 @@ def register():
         return jsonify({'error': str(e)}), 400
 
 
-
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -99,7 +106,7 @@ def login():
         token = jwt.encode({
             'perfil': user.perfil_id,
             'user_id': user.usuario_id,
-            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+            'exp': datetime.now(timezone.utc) + timedelta(hours=1)
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
         return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email}), 200
@@ -114,3 +121,152 @@ def get_user():
     """Retorna todos os usuários"""
     users = Usuarios.query.all()
     return jsonify([user.serialize() for user in users])
+
+
+@user_bp.route('/registerWhats', methods=['POST'])
+def registerWhats():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    telefone = data.get('telefone')
+    perfil_id = 2
+    try:
+        #new_user SE EXISTE UM USUÁRIO
+        new_user = Usuarios.query.filter_by(email=email).first()
+        if new_user is None:
+            # Cria um utilizador
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            # Use 'pbkdf2:sha256' para gerar o hash da senha
+            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            new_user = Usuarios(username=username, senha=hashed_password, email=email, perfil_id=perfil_id)
+            print('VAI ADICIONAR')
+            db.session.add(new_user)
+            db.session.commit()
+
+        # INSERE CLIENTE
+        try:
+            # Insere o cliente na tabela
+            cliente = Cliente(
+                nome=username,
+                contato='',
+                segmento='',
+                telefone=telefone,
+                email=email,
+                pais='',
+                tipo_cliente_id=1,
+                ativo=True
+            )
+            db.session.add(cliente)
+            print('Vai inserir cliente')
+            db.session.commit()
+
+            #mensagem = 'Seu usuário para acesso à plataforma foi criado com sucesso! \nSua senha de acesso à plataforma é: ' + password
+
+            # INSERIR NEGOCIO
+            try:
+                print('BORA INSERIR O NEGOCIO....')
+                new_deal = Negocio(cliente_id=cliente.cliente_id, nome_negocio=data.get("nomenegocio"), descricao='',
+                                   ativo=True)
+                db.session.add(new_deal)
+                db.session.commit()
+                print('NEGOCIO INSERIDO COM SUCESSO....')
+            except Exception as e:
+                db.session.rollback()
+                error_message = str(e)
+                print(error_message)
+                return jsonify({'error': 'Erro ao inserir o negócio. Tente novamente.'}), 400
+
+            # INSERIR PEDIDO
+            try:
+                print('BORA INSERIR O PEDIDO....')
+                new_order = Pedido(negocio_id=new_deal.negocio_id, descricao='POST GRATIS VIA WHATS', valor=0.0,
+                                   cliente_id=cliente.cliente_id, ativo=True)
+                db.session.add(new_order)
+                db.session.commit()
+                print('PEDIDO INSERIDO COM SUCESSO....')
+            except Exception as e:
+                db.session.rollback()
+                error_message = str(e)
+                print(error_message)
+                return jsonify({'error': 'Erro ao inserir o pedido. Tente novamente.'}), 400
+
+            # INSERIR ORDEM DE SERVIÇO
+            try:
+                print('BORA INSERIR O ORDEM DE SERVIÇO....')
+                # Adiciona Ordem de serviço
+                new_service_order = OrdemDeServico(
+                    pedido_id=new_order.pedido_id,
+                    descricao='POST GRATIS VIA WHATS',
+                    data=datetime.now(),
+                    usuario_id=new_user.usuario_id,
+                    workflow_id=2,
+                    id_negocio=new_deal.negocio_id,
+                    id_produto=1,
+                    prazointerno=datetime.now(),
+                    prazoexterno=datetime.now(),
+                    entrega=datetime.now(),
+                    mensal=False,
+                )
+
+                db.session.add(new_service_order)
+                db.session.commit()
+                print('ORDEM DE SERVIÇO INSERIDO COM SUCESSO....')
+            except Exception as e:
+                db.session.rollback()
+                error_message = str(e)
+                print(error_message)
+                return jsonify({'error': 'Erro ao inserir ordem de serviço. Tente novamente.'}), 400
+
+            # INSERIR FORMULÁRIO
+            try:
+                print('BORA INSERIR O FORMULÁRIO....')
+                # Adiciona o Formulário para preenchimento
+                form = FormularioCliente(
+                    ordem_id=new_service_order.ordem_id,
+                    nome_cliente=username,
+                    whatsapp_cliente=telefone,
+                    email_cliente=email
+                )
+
+                db.session.add(form)
+                db.session.commit()
+                print('FORMULÁRIO INSERIDO COM SUCESSO....')
+            except Exception as e:
+                db.session.rollback()
+                error_message = str(e)
+                print(error_message)
+                return jsonify({'error': 'Erro ao inserir FORMULÁRIO. Tente novamente.'}), 400
+
+            print(form.id_form)
+
+            print('enviando criação da legenda para:')
+            nomenegocio = data.get("nomenegocio")
+            socialmedia = data.get("socialmedia")
+            objetivo = data.get("objetivo")
+
+            print(nomenegocio + ' ' + socialmedia + ' ' + objetivo)
+
+            envioLegenda = processar_legendas(data,form.id_form )
+            # VERIFICAR VALIDAÇÃO RETORNO
+            print('**********************************************')
+            print('VOLTOU DO ENVIO')
+            print('**********************************************')
+            return jsonify(cliente.serialize()), 201
+
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)
+            print(error_message)
+            return jsonify({'error': 'Erro ao inserir o cliente. Tente novamente.'}), 400
+
+    except IntegrityError as e:
+        print('Erro de Integridade!')
+        db.session.rollback()
+        error_message = str(e)
+        # Verifica se 'UniqueViolation' está na mensagem de erro
+        if "UniqueViolation" in error_message:
+            # Mensagem amigável para o usuário
+            return jsonify(
+                {'error': 'Erro: Este nome de usuário ou e-mail já está em uso. Por favor, escolha outro.'}), 400
+        else:
+            return jsonify({'error': 'Ocorreu um erro ao tentar criar o usuário. Tente novamente mais tarde.'}), 400

@@ -1,10 +1,20 @@
 import requests
 from flask import Flask, request, jsonify, Blueprint
 
+from models import Gepeto_Zoe_V5
+from models.clientes import consultaTele
+from utils.token_verify import token_required
+
 disparar_bp = Blueprint('disparar', __name__)
 
+
 @disparar_bp.route('/', methods=['POST'])
-def disparar_chamadas():
+@token_required
+def disparar_chamadas(token_data):
+    form_id = token_data.get('id')
+    print(form_id)
+    user_id = token_data.get('user_id')
+    print(user_id)
     data = request.get_json()
 
     # Verifica se o JSON contém uma lista de informações
@@ -46,18 +56,8 @@ def disparar_chamadas():
             )
 
             # Dispara a chamada para o serviço /zoe com os dados de cada item
-            response = requests.post(
-                "http://127.0.0.1:5000/zoe/",  # URL do serviço /zoe
-                headers={"Content-Type": "application/json"},
-                json={"textao": texto}
-            )
+            response = (Gepeto_Zoe_V5.processar_legendas(texto, form_id))
 
-            # Adiciona o resultado de cada chamada na lista de resultados
-            results.append({
-                "item": item,
-                "status_code": response.status_code,
-                "response": response.json() if response.status_code == 200 else response.text
-            })
 
         except Exception as e:
             # Captura erros durante a chamada e adiciona à lista de resultados
@@ -69,4 +69,3 @@ def disparar_chamadas():
 
     # Retorna os resultados de todas as chamadas feitas
     return jsonify(results), 200
-
