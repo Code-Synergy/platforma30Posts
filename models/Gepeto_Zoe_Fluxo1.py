@@ -9,6 +9,7 @@ import json
 
 from models import legendas
 from models.Zoe_Img import gerar_imagem, upload_to_supabase
+from utils.token_verify import token_required
 
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
@@ -28,6 +29,19 @@ def processar_fluxo1():
 
     return processar_legendas(data, form_id)
 
+
+@zoeFluxo1_bp.route('/site', methods=['POST'])
+@token_required
+def processar_fluxo1_site(token_data):
+    form_id = token_data.get('id')
+    # form_id = 0
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Texto de entrada não fornecido."}), 400
+
+    return processar_legendas(data, form_id)
 
 def processar_legendas(data, form_id=0):
     print('**************************************')
@@ -105,7 +119,7 @@ def processar_legendas(data, form_id=0):
             print(texto_legenda)
             print('**********************************************************')
             print(texto_imagem)
-
+            texto_imagem = texto_imagem + ' inclua o texto: ' + texto_headline + ' na imagem'
             #prompt_imagem = 'Com base no perfil do instagram ' + socialmedia + ', gere uma imagem no formato feed quadrado (1080x1080) que mais se encaixa no nicho e no estilo do usuário. Quero uma cena compatível com conteúdo criado. De preferência para retrato em close-up, tomada autêntica, que transmite a emoção do texto gerado.'
 
             print('GERANDO IMAGEM...')
@@ -113,11 +127,10 @@ def processar_legendas(data, form_id=0):
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {API_KEY}",
-                "OpenAI-Beta": "assistants=v2",
-                "id": "asst_XlQl4tqzHEnlYOC49tkxRgBX"
             }
             # Parâmetros da geração de imagem
             data_img = {
+                "model": "dall-e-3",
                 "prompt": texto_imagem,  # Texto usado para gerar a imagem
                 "n": 1,  # Número de imagens a serem geradas
                 "size": "1024x1024"  # Tamanho da imagem gerada
