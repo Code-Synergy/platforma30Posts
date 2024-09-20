@@ -62,10 +62,17 @@ def processar_legendas(data, form_id=0):
             "temperature": 0.7
             #"max_tokens": 50
         }
+        print('*********************************************************************')
+        print('CHAMA GPTETO')
+        print('*********************************************************************')
 
         # URL correta para a API de chat completions
         response = requests.post("https://api.openai.com/v1/chat/completions",
                                  headers=headers, data=json.dumps(data))
+
+        print('*********************************************************************')
+        print('VOLTOU DO GPTETO')
+        print('*********************************************************************')
 
         if response.status_code == 200:
             print(response)
