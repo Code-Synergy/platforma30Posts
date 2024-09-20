@@ -12,6 +12,7 @@ from .negocios import Negocio
 from .ordens_de_servico import OrdemDeServico
 from .pedido import Pedido
 from datetime import datetime, timezone, timedelta
+import uuid
 
 
 # Definindo o modelo de perfis
@@ -134,8 +135,6 @@ def registerWhats():
         #new_user SE EXISTE UM USUÁRIO
         new_user = Usuarios.query.filter_by(email=email).first()
         if new_user is None:
-#            return jsonify({'message': 'Usuário já existe'}), 400
-#        else:
             # Cria um utilizador
             password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
             # Use 'pbkdf2:sha256' para gerar o hash da senha
@@ -224,6 +223,7 @@ def registerWhats():
                 print('BORA INSERIR O FORMULÁRIO....')
                 # Adiciona o Formulário para preenchimento
                 form = FormularioCliente(
+
                     ordem_id=new_service_order.ordem_id,
                     nome_cliente=username,
                     whatsapp_cliente=telefone,
