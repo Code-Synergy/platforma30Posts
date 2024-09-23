@@ -16,22 +16,28 @@ SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 BUCKET_NAME = "30Posts"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_API_KEY)
 
-img_bp = Blueprint('user', __name__)
+img_bp = Blueprint('img', __name__)
+
+@img_bp.route('/', methods=['GET'])
+def validar():
+    print('FUNCIONOU PORRA***********')
+
 
 @img_bp.route("/upload", methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'ERROR': 'Nenhum Arquivo enviado!'}), 400
 
-    file = requests.files['file']
+    file = request.files['file']
     filename = secure_filename(file.filename)
     file_path = os.path.join(os.getcwd(), filename)
-    file.save(file_path)
+    with open(file_path, 'wb') as f:
+        f.write(file.read())
 
     supabese_url = upload_to_supabase(file_path, filename)
 
     if supabese_url:
-        os.remove(file_path)
+        #os.remove(file_path)
         return jsonify({'message': "Upload feito com sucesso!", "url": supabese_url}), 200
     else:
         return jsonify({'message': "Falha no upload para o SUPABASE!"}), 500
