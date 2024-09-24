@@ -23,9 +23,11 @@ class Legenda(db.Model):
     bl_revisar = db.Column(db.Boolean, default=False, nullable=True)
     ds_revisao = db.Column(db.Text, nullable=True)
     bl_planner = db.Column(db.Boolean, default=False, nullable=True)
+    ds_headline = db.Column(db.Text, nullable=False)
+    ds_hashtag = db.Column(db.Text, nullable=False)
 
     def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False,
-                 ds_revisao=None, bl_planner=False):
+                 ds_revisao=None, bl_planner=False, ds_headline=None, ds_hashtag=None):
         self.id_form = id_form
         self.dia_post = dia_post
         self.ds_legenda = ds_legenda
@@ -34,6 +36,8 @@ class Legenda(db.Model):
         self.bl_revisar = bl_revisar
         self.ds_revisao = ds_revisao
         self.bl_planner = bl_planner
+        self.ds_headline = ds_headline
+        self.ds_hashtag = ds_hashtag
 
     def serialize(self):
         return {
@@ -45,7 +49,9 @@ class Legenda(db.Model):
             'bl_aprovado': self.bl_aprovado,
             'bl_revisar': self.bl_revisar,
             'ds_revisao': self.ds_revisao,
-            'bl_planner': self.bl_planner
+            'bl_planner': self.bl_planner,
+            'ds_headline': self.ds_headline,
+            'ds_hashtag': self.ds_hashtag
         }
 
 
@@ -103,7 +109,9 @@ def geraLegenda(data):
         bl_aprovado=data.get('bl_aprovado', False),
         bl_revisar=data.get('bl_revisar', False),
         ds_revisao=data.get('ds_revisao', None),
-        bl_planner=data.get('bl_planner', False)
+        bl_planner=data.get('bl_planner', False),
+        ds_headline=data.get('ds_headline', None),
+        ds_hashtag=data.get('ds_hashtag', None)
     )
 
     try:
@@ -164,6 +172,8 @@ def update_legenda(id_legenda):
     legenda.bl_revisar = data.get('bl_revisar', legenda.bl_revisar)
     legenda.ds_revisao = data.get('ds_revisao', legenda.ds_revisao)
     legenda.bl_planner = data.get('bl_planner', legenda.bl_planner)
+    legenda.ds_headline = data.get('ds_headline', legenda.ds_headline)
+    legenda.ds_hashtag = data.get('ds_hashtag', legenda.ds_hashtag)
 
     db.session.commit()
     return jsonify(legenda.serialize())
