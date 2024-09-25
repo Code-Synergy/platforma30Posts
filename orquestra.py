@@ -1,5 +1,5 @@
-from flask import Blueprint, request, jsonify, current_app
-import datetime  # Importando o módulo corretamente
+from flask import Blueprint, jsonify
+import datetime
 
 from models import db
 from models.clientes import Cliente
@@ -21,13 +21,13 @@ def GeraPedido(token_data):
     user = Usuarios.query.get_or_404(user_id)
 
     cliente = Cliente(
-        nome = user.email,
-        email = user.email,
-        contato = "",
-        segmento = "",
-        telefone = "",
-        pais = "",
-        tipo_cliente_id = 1 
+        nome=user.email,
+        email=user.email,
+        contato="",
+        segmento="",
+        telefone="",
+        pais="",
+        tipo_cliente_id=1
     )
     db.session.add(cliente)
     db.session.commit()

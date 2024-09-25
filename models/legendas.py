@@ -7,6 +7,7 @@ from models.ordens_de_servico import OrdemDeServico
 from utils.token_verify import token_required
 from . import db
 from .clientes import consultaTele
+from .user import Usuarios
 
 legendas_bp = Blueprint('legendas', __name__)
 
@@ -171,3 +172,13 @@ def delete_legenda(id_legenda):
     db.session.delete(legenda)
     db.session.commit()
     return '', 204
+
+
+@legendas_bp.route('/buscaFormByCliente', methods=['GET'])
+@token_required
+def get_form_by_cliente(token_data):
+    user_id = token_data.get('user_id')
+
+    form = FormularioCliente.query.get(user_id)
+
+    return jsonify(form.id_form), 201
