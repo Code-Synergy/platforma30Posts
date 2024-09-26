@@ -203,9 +203,9 @@ def registerWhats():
                     workflow_id=2,
                     id_negocio=new_deal.negocio_id,
                     id_produto=1,
-                    prazointerno=datetime.now(),
-                    prazoexterno=datetime.now(),
-                    entrega=datetime.now(),
+                    prazointerno=datetime.now(),  # Usando a data corretamente
+                    prazoexterno=datetime.now(),  # Usando a data corretamente
+                    entrega=datetime.now(),  # Usando a data corretamente
                     mensal=False,
                 )
 
