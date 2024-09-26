@@ -185,3 +185,4 @@ def delete_formulario_cliente(id):
     db.session.delete(formulario)
     db.session.commit()
     return '', 204
+

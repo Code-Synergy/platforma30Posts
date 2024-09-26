@@ -2,9 +2,10 @@ import re
 import os
 import random
 import string
-
+from flask import Blueprint, request, jsonify
 import requests
 from supabase import create_client, Client
+from werkzeug.utils import secure_filename
 
 
 API_KEY = "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"
@@ -14,6 +15,32 @@ SUPABASE_URL = "https://urxsxcaesrhgtwwvxmku.supabase.co"
 SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyeHN4Y2Flc3JoZ3R3d3Z4bWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjIyNjEwNTcsImV4cCI6MjAzNzgzNzA1N30.fxFHVZ7ifIvBrkKGNZFcZjlRdH8FiJ9Hrlbq3SUYi-I"
 BUCKET_NAME = "30Posts"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_API_KEY)
+
+img_bp = Blueprint('img', __name__)
+
+@img_bp.route('/', methods=['GET'])
+def validar():
+    print('FUNCIONOU PORRA***********')
+
+
+@img_bp.route("/upload", methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'ERROR': 'Nenhum Arquivo enviado!'}), 400
+
+    file = request.files['file']
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(os.getcwd(), filename)
+    with open(file_path, 'wb') as f:
+        f.write(file.read())
+
+    supabese_url = upload_to_supabase(file_path, filename)
+
+    if supabese_url:
+        #os.remove(file_path)
+        return jsonify({'message': "Upload feito com sucesso!", "url": supabese_url}), 200
+    else:
+        return jsonify({'message': "Falha no upload para o SUPABASE!"}), 500
 
 def gerar_imagem(texto):
     print('GERANDO IMAGEM...')
