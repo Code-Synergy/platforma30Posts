@@ -1,13 +1,16 @@
+from tkinter.tix import Form
+
 import requests
 from flask import Blueprint, request, jsonify
-from sqlalchemy import desc
+from sqlalchemy import desc, text
 
 from models.formulario_cliente import FormularioCliente
 from models.ordens_de_servico import OrdemDeServico
 from utils.token_verify import token_required
 from . import db
 from .clientes import consultaTele
-from .user import Usuarios
+from .negocios import Negocio
+from .pedido import Pedido
 
 legendas_bp = Blueprint('legendas', __name__)
 
@@ -23,9 +26,13 @@ class Legenda(db.Model):
     bl_aprovado = db.Column(db.Boolean, default=False, nullable=True)
     bl_revisar = db.Column(db.Boolean, default=False, nullable=True)
     ds_revisao = db.Column(db.Text, nullable=True)
+    bl_planner = db.Column(db.Boolean, default=False, nullable=True)
+    ds_headline = db.Column(db.Text, nullable=False)
+    ds_hashtag = db.Column(db.Text, nullable=False)
+    ds_canva = db.Column(db.Text, nullable=True)
 
     def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False,
-                 ds_revisao=None):
+                 ds_revisao=None, bl_planner=False, ds_headline=None, ds_hashtag=None, ds_canva=None):
         self.id_form = id_form
         self.dia_post = dia_post
         self.ds_legenda = ds_legenda
@@ -33,6 +40,10 @@ class Legenda(db.Model):
         self.bl_aprovado = bl_aprovado
         self.bl_revisar = bl_revisar
         self.ds_revisao = ds_revisao
+        self.bl_planner = bl_planner
+        self.ds_headline = ds_headline
+        self.ds_hashtag = ds_hashtag
+        self.ds_canva = ds_canva
 
     def serialize(self):
         return {
@@ -43,7 +54,11 @@ class Legenda(db.Model):
             'img_legenda': self.img_legenda,
             'bl_aprovado': self.bl_aprovado,
             'bl_revisar': self.bl_revisar,
-            'ds_revisao': self.ds_revisao
+            'ds_revisao': self.ds_revisao,
+            'bl_planner': self.bl_planner,
+            'ds_headline': self.ds_headline,
+            'ds_hashtag': self.ds_hashtag,
+            'ds_canva': self.ds_canva
         }
 
 
@@ -100,7 +115,11 @@ def geraLegenda(data):
         img_legenda=data.get('img_legenda', None),
         bl_aprovado=data.get('bl_aprovado', False),
         bl_revisar=data.get('bl_revisar', False),
-        ds_revisao=data.get('ds_revisao', None)
+        ds_revisao=data.get('ds_revisao', None),
+        bl_planner=data.get('bl_planner', False),
+        ds_headline=data.get('ds_headline', None),
+        ds_hashtag=data.get('ds_hashtag', None),
+        ds_canva=data.get('ds_canva', None)
     )
 
     try:
@@ -160,6 +179,10 @@ def update_legenda(id_legenda):
     legenda.bl_aprovado = data.get('bl_aprovado', legenda.bl_aprovado)
     legenda.bl_revisar = data.get('bl_revisar', legenda.bl_revisar)
     legenda.ds_revisao = data.get('ds_revisao', legenda.ds_revisao)
+    legenda.bl_planner = data.get('bl_planner', legenda.bl_planner)
+    legenda.ds_headline = data.get('ds_headline', legenda.ds_headline)
+    legenda.ds_hashtag = data.get('ds_hashtag', legenda.ds_hashtag)
+    legenda.ds_canva = data.get('ds_canva', legenda.ds_canva)
 
     db.session.commit()
     return jsonify(legenda.serialize())
@@ -174,11 +197,36 @@ def delete_legenda(id_legenda):
     return '', 204
 
 
-@legendas_bp.route('/buscaFormByCliente', methods=['GET'])
-@token_required
-def get_form_by_cliente(token_data):
-    user_id = token_data.get('user_id')
+@legendas_bp.route('/buscaFormByCliente/<int:id_cliente>', methods=['GET'])
+def get_form_by_cliente(id_cliente):
+    negocio = Negocio.query.get(id_cliente)
+    print('Negócio do cliente é: ' + str(negocio.negocio_id))
 
-    form = FormularioCliente.query.get(user_id)
+    pedido = Pedido.query.get(negocio.negocio_id)
+    print('O PEDIDO É: ' + str(pedido.cliente_id))
 
-    return jsonify(form.id_form), 201
+    ordem = OrdemDeServico.query.filter_by(
+        pedido_id=pedido.pedido_id).first()  # Usando .first() para um único resultado
+
+    #if ordem:
+    #    return jsonify({"ordem_id": ordem.ordem_id})
+    #else:
+    #    return jsonify({"message": "Nenhuma ordem encontrada"}), 404
+
+    print('A ORDEM DE SERVIÇO É: ' + str(ordem.ordem_id))
+    print('O FORM É: ' + str(ordem.id_form))
+    form = FormularioCliente.query.get(ordem.id_form)
+    print(form)
+
+    if form:
+        form_id = form.id_form
+        print(f'O ID do formulário é: {form_id}')
+
+        legendas = (Legenda.query
+                    .filter_by(id_form=form_id)
+                    .all())
+
+        return jsonify([l.serialize() for l in legendas])
+
+    else:
+        return jsonify({"message": "Formulário não encontrado"}), 404
