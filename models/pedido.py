@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
-from sqlalchemy import text
+
 from . import db
+from sqlalchemy import text
 
 pedidos_bp = Blueprint('pedidos', __name__)
 
