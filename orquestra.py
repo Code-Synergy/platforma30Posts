@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import datetime
 
 from models import db
@@ -13,11 +13,11 @@ from utils.token_verify import token_required
 orquestra_bp = Blueprint('orquestra', __name__)
 
 
-@orquestra_bp.route('/', methods=['POST'])
+@orquestra_bp.route('/<int:id_produto>', methods=['POST'])
 @token_required
-def GeraPedido(token_data, id_produto):
+def GeraPedido(token_data):
     user_id = token_data.get('user_id')
-
+    id_produto = request.view_args['id_produto']
     user = Usuarios.query.get_or_404(user_id)
 
     cliente = Cliente(
