@@ -20,6 +20,9 @@ zoe_bp = Blueprint('zoe', __name__)
 
 @zoe_bp.route('/', methods=['POST'])
 def processar_legendas():
+    # CHAMAR os dados a partir do form
+
+
     data = request.get_json()
     textao = data.get('textao', '')
 
