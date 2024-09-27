@@ -1,16 +1,18 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import DateTime, func
 from . import db
-from utils.token_verify import token_required  
+from utils.token_verify import token_required
 
 formulario_cliente_bp = Blueprint('formulario_cliente', __name__)
 
 from . import db
 
+
 class FormularioCliente(db.Model):
     __tablename__ = 'formulario_cliente'
 
-    id_form = db.Column(db.String(36), primary_key=True, default=db.func.gen_random_uuid())  # Verifique se o banco suporta gen_random_uuid()
+    id_form = db.Column(db.String(36), primary_key=True,
+                        default=db.func.gen_random_uuid())  # Verifique se o banco suporta gen_random_uuid()
     ordem_id = db.Column(db.Integer, db.ForeignKey('ordens_de_servico.ordem_id'))
     nome_cliente = db.Column(db.String(255))
     whatsapp_cliente = db.Column(db.String(20), nullable=False)
@@ -66,9 +68,12 @@ class FormularioCliente(db.Model):
     created_at = db.Column(DateTime, default=func.now())
     updated_at = db.Column(DateTime, default=func.now(), onupdate=func.now())
 
-    def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio=None, whatsapp_negocio=None,
-                 nicho=None, site=None, perfis_redes_sociais_1=None, perfis_redes_sociais_2=None, perfis_redes_sociais_3=None,
-                 resumo_cliente=None, comeco=None, temas=None, produto=None, identidade_visual_1=None, identidade_visual_2=None,
+    def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio=None,
+                 whatsapp_negocio=None,
+                 nicho=None, site=None, perfis_redes_sociais_1=None, perfis_redes_sociais_2=None,
+                 perfis_redes_sociais_3=None,
+                 resumo_cliente=None, comeco=None, temas=None, produto=None, identidade_visual_1=None,
+                 identidade_visual_2=None,
                  identidade_visual_3=None, url_logo=None, estilo=None, comentarios=None, **kwargs):
         self.ordem_id = ordem_id
         self.nome_cliente = nome_cliente
@@ -97,24 +102,25 @@ class FormularioCliente(db.Model):
             setattr(self, f'url_imagem_{i:02}', kwargs.get(f'url_imagem_{i:02}'))
 
 
-
 @formulario_cliente_bp.route('/all', methods=['GET'])
 def get_formularios_cliente():
     formularios = FormularioCliente.query.all()
     return jsonify([f.serialize() for f in formularios])
+
 
 @formulario_cliente_bp.route('/', methods=['GET'])
 @token_required
 def get_formularios_cliente_id(token_data):
     form_id = token_data.get('id')
     formularios = FormularioCliente.query.get(form_id)
-    if formularios :
+    if formularios:
         return jsonify({
             'telefone': formularios.whatsapp_cliente,
             'email': formularios.email_cliente
         })
     else:
         return jsonify({'message': 'Not Found!'}), 404
+
 
 @formulario_cliente_bp.route('/', methods=['POST'])
 def add_formulario_cliente():
@@ -148,6 +154,7 @@ def add_formulario_cliente():
     db.session.commit()
     return jsonify(formulario.serialize()), 201
 
+
 @formulario_cliente_bp.route('/<int:id>', methods=['PUT'])
 def update_formulario_cliente(id):
     formulario = FormularioCliente.query.get_or_404(id)
@@ -179,6 +186,7 @@ def update_formulario_cliente(id):
     db.session.commit()
     return jsonify(formulario.serialize())
 
+
 @formulario_cliente_bp.route('/<int:id>', methods=['DELETE'])
 def delete_formulario_cliente(id):
     formulario = FormularioCliente.query.get_or_404(id)
@@ -186,3 +194,7 @@ def delete_formulario_cliente(id):
     db.session.commit()
     return '', 204
 
+
+def get_formularios_form_id(id_form):
+    formularios = FormularioCliente.query.get(id_form)
+    return formularios
