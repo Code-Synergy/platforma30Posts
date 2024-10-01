@@ -9,6 +9,7 @@ from models.ordens_de_servico import OrdemDeServico
 from models.pedido import Pedido
 from models.user import Usuarios
 from utils.token_verify import token_required
+import uuid
 
 orquestra_bp = Blueprint('orquestra', __name__)
 
@@ -73,17 +74,18 @@ def GeraPedido(token_data, id_produto):
     )
     db.session.add(ordem)
     db.session.commit()
-
+    id_form = uuid.uuid4()
     # Adiciona o Formulário para preenchimento
     formulario = FormularioCliente(
+        id_form=id_form,
         ordem_id=ordem.ordem_id,
         nome_cliente='',
         whatsapp_cliente='',
         email_cliente=user.email,
         #TODO Ajustar para lógico de balanceamento de SM
-        id_usuarioSocialMedia = 3
+        id_usuarioSocialMedia=3
     )
     db.session.add(formulario)
     db.session.commit()
 
-    return jsonify({'FormID': formulario.id_form}), 201
+    return jsonify({'FormID': id_form}), 201
