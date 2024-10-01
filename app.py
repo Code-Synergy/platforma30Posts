@@ -6,7 +6,7 @@ from config import Config
 from flask_cors import CORS
 import orquestra
 
-from payment import payment_client, payment_card
+from payment import payment_client, payment_card, payments_web
 
 from models import formulario_cliente
 
@@ -37,9 +37,16 @@ app.register_blueprint(Gepeto_Zoe_V5.zoe_bp, url_prefix='/zoe')
 app.register_blueprint(orquestra.orquestra_bp, url_prefix='/orquestra')
 app.register_blueprint(disparar.disparar_bp, url_prefix='/disparar')
 
+# add rota para cobrança
+app.register_blueprint(payment_client.payment_client_bp, url_prefix='/paymentclient')
+app.register_blueprint(payment_card.cobranca_bp, url_prefix='/cobranca')
+
 app.register_blueprint(Gepeto_Zoe_Fluxo1.zoeFluxo1_bp, url_prefix='/fluxo1')
 
 app.register_blueprint(Zoe_Img.img_bp, url_prefix='/img')
+
+app.register_blueprint(payments_web.paymentJ_bp, url_prefix='/paymentJ')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
