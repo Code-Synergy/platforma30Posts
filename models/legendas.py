@@ -133,30 +133,6 @@ def geraLegenda(data):
         print('COMITOU A LEGENDA')
         print('***********************************************')
 
-        print('BORA AVISAR CLIENTE: ....')
-        print("ENVIAR MENSAGEM NO WHATS.....")
-        telefone = consultaTele(form_cliente)
-        URLTigor = "https://tigor.itlabs.app/wpp/api"
-        payload = {
-            "app": "3bd82d2e-3077-4226-a366-1338eb3ed589",
-            "number": telefone,
-            "message": "Parabens! Seu post esta em produção.\n Obrigado por escolher a 30 Posts. \n Após apreciar seu post grátis o que acha de conhecer nossos planos ?",
-            "type": "text",
-            "url": ""
-        }
-
-        headers = {
-            "Content-Type": "application/json"  # Define que o conteúdo enviado é JSON
-        }
-
-        responseWhats = requests.post(URLTigor, json=payload, headers=headers)
-
-        if responseWhats.status_code == 200 or responseWhats.status_code == 201:
-            print('Cliente informado com sucesso!')
-        else:
-            print('Erro ao informar cliente:')
-            print(responseWhats.text)
-
         # Retorna a legenda adicionada com sucesso
         return jsonify(legenda.serialize()), 201
     except Exception as e:
