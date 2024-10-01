@@ -68,7 +68,7 @@ def processar_fluxo1_site(token_data):
 
     fluxo = validaFluxo(data)
 
-    return 'ok' #processar_legendas(data, form_id, fluxo)
+    return processar_legendas(data, form_id, fluxo)
 
 
 def processar_legendas(data, form_id, fluxo):
