@@ -12,7 +12,7 @@ class FormularioCliente(db.Model):
     __tablename__ = 'formulario_cliente'
 
     id_form = db.Column(db.String(36), primary_key=True,
-                        default=db.func.gen_random_uuid())  # Verifique se o banco suporta gen_random_uuid()
+                        default=db.func.gen_random_uuid())
     ordem_id = db.Column(db.Integer, db.ForeignKey('ordens_de_servico.ordem_id'))
     nome_cliente = db.Column(db.String(255))
     whatsapp_cliente = db.Column(db.String(20), nullable=False)
