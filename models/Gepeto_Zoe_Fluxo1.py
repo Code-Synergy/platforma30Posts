@@ -247,10 +247,12 @@ def processar_legendas(data, form_id, fluxo):
                         legenda_data = {
                             "id_form": form_id,
                             "dia_post": 1,
-                            "ds_legenda": output,
+                            "ds_legenda": texto_legenda,
                             "img_legenda": supabase_response,
                             "bl_aprovado": True,
-                            "ds_revisao": ''
+                            "ds_revisao": '',
+                            "ds_headline": texto_headline,
+                            "ds_hashtag": '',
                         }
 
                         print('ENVIANDO LEGENDAS....')
