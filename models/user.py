@@ -255,7 +255,7 @@ def registerWhats():
             socialmedia = data.get("socialmedia")
             objetivo = data.get("objetivo")
 
-            print(nomenegocio + ' ' + socialmedia + ' ' + objetivo)
+            #print(nomenegocio + ' ' + socialmedia + ' ' + objetivo)
             fluxo = validaFluxo(data)
 
             envioLegenda = processar_legendas(data, id_form, fluxo)
