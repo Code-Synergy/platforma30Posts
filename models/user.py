@@ -141,6 +141,7 @@ def registerWhats():
     email = data.get('email')
     telefone = data.get('telefone')
     perfil_id = 1
+
     try:
         #new_user SE EXISTE UM USUÁRIO
         new_user = Usuarios.query.filter_by(email=email).first()
@@ -151,7 +152,21 @@ def registerWhats():
             print('VAI ADICIONAR')
             db.session.add(new_user)
             db.session.commit()
-
+        else:
+            print('CLIENTE EXISTENTE .....')
+            print(new_user.usuario_id)
+            # Busca pelo id do usuario se tem uma ordem de serviço
+            ordem = OrdemDeServico.query.filter_by(usuario_id=new_user.usuario_id).first()
+            print(ordem.data)
+            data_recebida_dt = datetime.strptime(ordem.data, '%Y-%m-%d')
+            data_atual = datetime.now()
+            diferenca = data_recebida_dt - data_atual
+            if 7 > diferenca.days >= 0:
+                print("A data recebida está dentro dos próximos 7 dias.")
+                return jsonify({'error': 'Post enviado em menos de 7 dias.'}), 403
+            else:
+                print("A data recebida está fora dos próximos 7 dias.")
+                return jsonify({'INFO': 'GERAR NOVO POST'}), 200
         # INSERE CLIENTE
         try:
             # Insere o cliente na tabela
@@ -168,8 +183,6 @@ def registerWhats():
             db.session.add(cliente)
             print('Vai inserir cliente')
             db.session.commit()
-
-            #mensagem = 'Seu usuário para acesso à plataforma foi criado com sucesso! \nSua senha de acesso à plataforma é: ' + password
 
             # INSERIR NEGOCIO
             try:
