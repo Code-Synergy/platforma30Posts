@@ -14,6 +14,11 @@ from utils.token_verify import token_required
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
 
+# API de envio de mensagem Whats
+URLTigor = "https://tigor.itlabs.app/wpp/api"
+KEYTigor = "3bd82d2e-3077-4226-a366-1338eb3ed589"
+headers_Tigor = {"Content-Type": "application/json"}
+
 zoeFluxo1_bp = Blueprint('zoeFluxo1', __name__)
 
 
@@ -47,30 +52,23 @@ def processar_fluxo1():
 def processar_fluxo1_site(token_data):
     form_id = token_data.get('id')
     data = request.get_json()
-    fluxo = 0
+    print('**************************************************')
+    print('**************************************************')
+    print('**************************************************')
+
+    print(form_id)
+
+    print('**************************************************')
+    print('**************************************************')
+    print('**************************************************')
+    print('**************************************************')
+
     if not data:
         return jsonify({"error": "Texto de entrada não fornecido."}), 400
 
-    socialmedia = data.get("socialmedia")
-    print(socialmedia)
-    if socialmedia is None or socialmedia == "":
-        # Valida se é fluxo 2 ou 3
-        print('VALIDA FLUXO!')
-        site = data.get("site")
-        print('O SITE DO CLIENTE É: ' + str(site))
+    fluxo = validaFluxo(data)
 
-        # Verificar se site está preenchido
-        if site and site != "":
-            print('FLUXO 2')
-            fluxo = 2
-        else:
-            print('FLUXO 3')
-            fluxo = 3
-    else:
-        print('FLUXO 1')
-        fluxo = 1
-
-    return processar_legendas(data, form_id, fluxo)
+    return 'ok' #processar_legendas(data, form_id, fluxo)
 
 
 def processar_legendas(data, form_id, fluxo):
@@ -80,7 +78,7 @@ def processar_legendas(data, form_id, fluxo):
     print('**************************************')
     print('INDO PARA O FLUXO:' + str(fluxo))
     print('**************************************')
-    form_id = 0
+
     nomenegocio = data.get("nomenegocio")
     socialmedia = data.get("socialmedia")
     objetivo = data.get("objetivo")
@@ -90,6 +88,18 @@ def processar_legendas(data, form_id, fluxo):
     prakem = data.get("prakem")
     estilo = data.get("estilo")
     cor = data.get("cor")
+
+    # Payload de envio ao cliente inicio de processo
+    payload_img = {
+        "app": KEYTigor,
+        "number": telefone,
+        "message": "Seu esta em produção...",
+        "type": "text",
+        "url": ""
+    }
+    # Envia mensagem ao cliente
+    requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+
     try:
 
         if fluxo == 1:
@@ -130,6 +140,18 @@ def processar_legendas(data, form_id, fluxo):
             "temperature": 0.7
             #"max_tokens": 50
         }
+
+        # Payload de envio ao cliente inicio de processo
+        payload_img = {
+            "app": KEYTigor,
+            "number": telefone,
+            "message": "Falta pouco....",
+            "type": "text",
+            "url": ""
+        }
+        # Envia mensagem ao cliente
+        requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+
         print('*********************************************************************')
         print('CHAMA GPTETO')
         print('*********************************************************************')
@@ -165,8 +187,6 @@ def processar_legendas(data, form_id, fluxo):
             print("\nTexto da Legenda:\n", texto_legenda)
             print("\nTexto da Imagem:\n", texto_imagem)
 
-
-
             print(texto_legenda)
             print('**********************************************************')
             print(texto_imagem)
@@ -191,6 +211,16 @@ def processar_legendas(data, form_id, fluxo):
             response_img = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=data_img)
 
             if response_img.status_code == 200:
+                # Payload de envio ao cliente inicio de processo
+                payload_img = {
+                    "app": KEYTigor,
+                    "number": telefone,
+                    "message": "3, 2, 1...",
+                    "type": "text",
+                    "url": ""
+                }
+                # Envia mensagem ao cliente
+                requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
                 image_url = response_img.json()['data'][0]['url']
                 print(image_url)
                 # Fazer download da imagem gerada
@@ -229,21 +259,16 @@ def processar_legendas(data, form_id, fluxo):
                         print('ENVIADAS AS LEGENDAS!!!')
                         print('ESTA AQUI SEU POST: ' + output)
 
-                        URLTigor = "https://tigor.itlabs.app/wpp/api"
-
+                        #Payload de envio de POST e IMAGEM para o cliente
                         payload_img = {
-                            "app": "3bd82d2e-3077-4226-a366-1338eb3ed589",
+                            "app": KEYTigor,
                             "number": telefone,
-                            "message": "Seu post chegou ! \n " + texto_headline + " \n" + texto_legenda,
+                            "message": "PARABÉNS!!! Seu post está pronto! \n " + texto_headline + " \n" + texto_legenda + "\n\n\n Agora basta você baixar a imagem e copiar os textos para publicar nas suas redes sociais. ",
                             "type": "image",
                             "url": image_url
                         }
-
-                        headers = {
-                            "Content-Type": "application/json"  # Define que o conteúdo enviado é JSON
-                        }
-
-                        responseWhats = requests.post(URLTigor, json=payload_img, headers=headers)
+                        # Envia mensagem ao cliente
+                        responseWhats = requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
 
                         if responseWhats.status_code == 200 or responseWhats.status_code == 201:
                             print('IMAGEM enviada ao cliente com com sucesso!')
@@ -265,6 +290,30 @@ def processar_legendas(data, form_id, fluxo):
                     # return None
             else:
                 return jsonify({"error": "Erro ao processar legendas", "details": str(response_img.text)}), 500
+
         return jsonify({"message": "Legendas processadas e enviadas com sucesso."}), 201
     except Exception as e:
         return jsonify({"error": "Erro ao processar legendas", "details": str(e)}), 500
+
+
+def validaFluxo(data):
+    socialmedia = data.get("socialmedia")
+    print(socialmedia)
+    if socialmedia is None or socialmedia == "":
+        # Valida se é fluxo 2 ou 3
+        print('VALIDA FLUXO!')
+        site = data.get("site")
+        print('O SITE DO CLIENTE É: ' + str(site))
+
+        # Verificar se site está preenchido
+        if site and site != "":
+            print('FLUXO 2')
+            fluxo = 2
+        else:
+            print('FLUXO 3')
+            fluxo = 3
+    else:
+        print('FLUXO 1')
+        fluxo = 1
+
+    return fluxo

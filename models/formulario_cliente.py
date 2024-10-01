@@ -68,13 +68,14 @@ class FormularioCliente(db.Model):
     created_at = db.Column(DateTime, default=func.now())
     updated_at = db.Column(DateTime, default=func.now(), onupdate=func.now())
 
-    def __init__(self, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio=None,
+    def __init__(self, id_form, ordem_id, nome_cliente, whatsapp_cliente, email_cliente, nome_negocio=None,
                  whatsapp_negocio=None,
                  nicho=None, site=None, perfis_redes_sociais_1=None, perfis_redes_sociais_2=None,
                  perfis_redes_sociais_3=None,
                  resumo_cliente=None, comeco=None, temas=None, produto=None, identidade_visual_1=None,
                  identidade_visual_2=None,
                  identidade_visual_3=None, url_logo=None, estilo=None, comentarios=None, **kwargs):
+        self.id_form = id_form
         self.ordem_id = ordem_id
         self.nome_cliente = nome_cliente
         self.whatsapp_cliente = whatsapp_cliente
