@@ -8,7 +8,7 @@ from .clientes import Cliente
 import random
 import string
 from sqlalchemy.exc import IntegrityError
-from .formulario_cliente import FormularioCliente
+from .formulario_cliente import FormularioCliente, get_formularios_form_id
 from .negocios import Negocio
 from .ordens_de_servico import OrdemDeServico
 from .pedido import Pedido
@@ -43,7 +43,6 @@ class Usuarios(db.Model):
     # Relacionamento com a tabela Perfis
     perfil = db.relationship('Perfis', backref='usuarios')
 
-    # Método serialize
     def serialize(self):
         return {
             'usuario_id': self.usuario_id,
@@ -157,32 +156,78 @@ def registerWhats():
             print(new_user.usuario_id)
             # Busca pelo id do usuario se tem uma ordem de serviço
             ordem = OrdemDeServico.query.filter_by(usuario_id=new_user.usuario_id).first()
-            print(ordem.data)
-            data_recebida_dt = datetime.strptime(ordem.data, '%Y-%m-%d')
-            data_atual = datetime.now()
-            diferenca = data_recebida_dt - data_atual
-            if 7 > diferenca.days >= 0:
-                print("A data recebida está dentro dos próximos 7 dias.")
-                return jsonify({'error': 'Post enviado em menos de 7 dias.'}), 403
-            else:
-                print("A data recebida está fora dos próximos 7 dias.")
-                return jsonify({'INFO': 'GERAR NOVO POST'}), 200
+            if ordem is not None:
+                data_recebida_dt = datetime.strptime(ordem.data.strftime('%Y-%m-%d'), '%Y-%m-%d')
+                data_atual = datetime.now()
+                diferenca = data_recebida_dt - data_atual
+                if 7 > diferenca.days >= 0:
+                    print("A data recebida está dentro dos próximos 7 dias.")
+                    return jsonify({'error': 'Post enviado em menos de 7 dias.'}), 403
+                else:
+                    print("A data recebida está fora dos próximos 7 dias.")
+                    #Pega dados do Formumário e enviar nova legenda
+                    form = get_formularios_form_id(ordem.id_form)
+
+                    #Monta o data para enviar o dados para legenda nova
+                    DadosForm = {
+                        "username": form.email_cliente,
+                        "email": form.email_cliente,
+                        "telefone": form.whatsapp_cliente,
+                        "nomenegocio": form.nome_negocio,
+                        "socialmedia": form.perfis_redes_sociais_1,
+                        "objetivo": form.resumo_cliente,
+                        "site": form.site,
+                        "nome": form.nome_cliente,
+                        "prakem": form.comentarios,
+                        "estilo": form.estilo,
+                        "cor": form.identidade_visual_1
+                    }
+                    fluxo = validaFluxo(data)
+                    print('enviando criação da legenda para:')
+
+                    envioLegenda = processar_legendas(data, ordem.id_form, fluxo)
+
+                    site = r"http:\\admin.30posts.com.br"
+
+                    # Payload de envio ao cliente inicio de processo
+                    payload_img = {
+                        "app": KEYTigor,
+                        "number": telefone,
+                        "message": "Você também pode visualizar os seus posts na plataforma 30 Posts! \n\n " + site + " \n\nSeu Login é: " + email + "\n\nSua Senha: " + password,
+                        "type": "text",
+                        "url": ""
+                    }
+                    # Envia mensagem ao cliente
+                    requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+
+                    # VERIFICAR VALIDAÇÃO RETORNO
+                    print('**********************************************')
+                    print('VOLTOU DO ENVIO')
+                    print('**********************************************')
+
+                    return jsonify({'INFO': 'GEROU NOVO POST'}), 200
+
         # INSERE CLIENTE
         try:
-            # Insere o cliente na tabela
-            cliente = Cliente(
-                nome=username,
-                contato='',
-                segmento='',
-                telefone=telefone,
-                email=email,
-                pais='',
-                tipo_cliente_id=1,
-                ativo=True
-            )
-            db.session.add(cliente)
-            print('Vai inserir cliente')
-            db.session.commit()
+            #Validar se o cliente existe
+            existeCliente = Cliente.query.filter_by(email=email).first()
+            if existeCliente is None:
+                # Insere o cliente na tabela
+                cliente = Cliente(
+                    nome=username,
+                    contato='',
+                    segmento='',
+                    telefone=telefone,
+                    email=email,
+                    pais='',
+                    tipo_cliente_id=1,
+                    ativo=True
+                )
+                db.session.add(cliente)
+                print('Vai inserir cliente')
+                db.session.commit()
+            else:
+                cliente = existeCliente
 
             # INSERIR NEGOCIO
             try:
@@ -213,6 +258,7 @@ def registerWhats():
                 return jsonify({'error': 'Erro ao inserir o pedido. Tente novamente.'}), 400
 
             # INSERIR ORDEM DE SERVIÇO
+            id_form = uuid.uuid4()
             try:
                 print('BORA INSERIR O ORDEM DE SERVIÇO....')
                 # Adiciona Ordem de serviço
@@ -227,7 +273,8 @@ def registerWhats():
                     prazointerno=datetime.now(),  # Usando a data corretamente
                     prazoexterno=datetime.now(),  # Usando a data corretamente
                     entrega=datetime.now(),  # Usando a data corretamente
-                    mensal=False,
+                    mensal=False
+                    #id_form=id_form
                 )
 
                 db.session.add(new_service_order)
@@ -241,7 +288,7 @@ def registerWhats():
 
             # INSERIR FORMULÁRIO
             try:
-                id_form = uuid.uuid4()
+
                 print('BORA INSERIR O FORMULÁRIO....')
                 # Adiciona o Formulário para preenchimento
                 form = FormularioCliente(
@@ -262,6 +309,9 @@ def registerWhats():
                 print(error_message)
                 return jsonify({'error': 'Erro ao inserir FORMULÁRIO. Tente novamente.'}), 400
 
+            #TODO  Atualiza do form na tabela de Ordem de Serviços
+
+
 
             print('enviando criação da legenda para:')
             nomenegocio = data.get("nomenegocio")
@@ -272,18 +322,18 @@ def registerWhats():
             fluxo = validaFluxo(data)
 
             envioLegenda = processar_legendas(data, id_form, fluxo)
-            site = r"http:\\admin.30posts.com.br"
+            #site = r"http:\\plataforma.30posts.com.br"
 
             # Payload de envio ao cliente inicio de processo
-            payload_img = {
-                "app": KEYTigor,
-                "number": telefone,
-                "message": "Você também pode visualizar os seus posts na plataforma 30 Posts! \n\n " + site + " \n\nSeu Login é: " + email + "\n\nSua Senha: " + password,
-                "type": "text",
-                "url": ""
-            }
+            #payload_img = {
+            #    "app": KEYTigor,
+            #    "number": telefone,
+            #    "message": "Você também pode visualizar os seus posts na plataforma 30 Posts! \n\n " + site + " \n\nSeu Login é: " + email + "\n\nSua Senha: " + password,
+            #    "type": "text",
+            #    "url": ""
+            #}
             # Envia mensagem ao cliente
-            requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+            #requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
 
             # VERIFICAR VALIDAÇÃO RETORNO
             print('**********************************************')
