@@ -93,7 +93,7 @@ def processar_legendas(data, form_id, fluxo):
     payload_img = {
         "app": KEYTigor,
         "number": telefone,
-        "message": "Seu esta em produção...",
+        "message": "Seu post esta em produção...",
         "type": "text",
         "url": ""
     }
@@ -260,17 +260,50 @@ def processar_legendas(data, form_id, fluxo):
                         legenda_response = legendas.geraLegenda(legenda_data)
                         print('ENVIADAS AS LEGENDAS!!!')
                         print('ESTA AQUI SEU POST: ' + output)
+                        # Payload de envio de POST e IMAGEM para o cliente
+                        payload_PARABENS = {
+                            "app": KEYTigor,
+                            "number": telefone,
+                            "message": "PARABÉNS seu post grátis esta pronto! ",
+                            "type": "text",
+                            "url": ''
+                        }
+                        # Envia mensagem ao cliente
+                        requests.post(URLTigor, json=payload_PARABENS, headers=headers_Tigor)
 
                         #Payload de envio de POST e IMAGEM para o cliente
                         payload_img = {
                             "app": KEYTigor,
                             "number": telefone,
-                            "message": "PARABÉNS!!! Seu post está pronto! \n " + texto_headline + " \n" + texto_legenda + "\n\n\n Agora basta você baixar a imagem e copiar os textos para publicar nas suas redes sociais. ",
+                            "message": "\n",
                             "type": "image",
                             "url": image_url
                         }
+
+                        requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+                        texto_sem_hashtag = texto_legenda.replace("### Hashtags:", "")
+                        # Payload de envio de POST e IMAGEM para o cliente
+                        payload_textos= {
+                            "app": KEYTigor,
+                            "number": telefone,
+                            "message": texto_headline + " \n" + texto_sem_hashtag ,
+                            "type": "text",
+                            "url": ''
+                        }
                         # Envia mensagem ao cliente
-                        responseWhats = requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+                        requests.post(URLTigor, json=payload_textos, headers=headers_Tigor)
+
+                        payload_textosFinal = {
+                            "app": KEYTigor,
+                            "number": telefone,
+                            "message": "Agora basta você baixar a imagem e copiar os textos para publicar nas suas redes sociais. ",
+                            "type": "text",
+                            "url": ''
+                        }
+                        # Envia mensagem ao cliente
+                        responseWhats = requests.post(URLTigor, json=payload_textosFinal, headers=headers_Tigor)
+
+
 
                         if responseWhats.status_code == 200 or responseWhats.status_code == 201:
                             print('IMAGEM enviada ao cliente com com sucesso!')
