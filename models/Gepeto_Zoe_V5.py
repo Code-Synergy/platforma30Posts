@@ -3,6 +3,7 @@ import requests
 import json
 import re
 from models import legendas
+from models.balancesm import distribuir_ordem
 from models.formulario_cliente import FormularioCliente
 
 # Defina sua chave da API da OpenAI
@@ -46,10 +47,10 @@ def processar_legendas():
     textao = 'Nome: ' + dataForm.nome_cliente + ' Nicho: ' + dataForm.nicho + ' Nome do Negócio: ' + dataForm.nome_negocio
     textao = textao + ' Cliente ideial: ' + dataForm.resumo_cliente + ' História: ' + dataForm.comeco + ' Produto: ' + dataForm.produto + ' Temas: ' + dataForm.temas
 
-    return processar_legendas(dataForm.whatsapp_cliente, textao, idForm)
+    return processar_legendas_geral(dataForm.whatsapp_cliente, textao, idForm)
 
 
-def processar_legendas(whatsCliente, textao, form_id=0):
+def processar_legendas_geral(whatsCliente, textao, form_id):
     try:
         with open('./models/promptBase.txt', 'r', encoding='utf8') as arquivo:
             BASE = arquivo.read()
@@ -70,7 +71,17 @@ def processar_legendas(whatsCliente, textao, form_id=0):
             "temperature": 0.7
         }
 
-        POSTS = 0
+        #Coloca um SM para tratar
+        ordemSM = distribuir_ordem(form_id)
+        print('************************************************')
+        print('************************************************')
+        print('   ')
+        print(ordemSM)
+        print('   ')
+        print('************************************************')
+        print('************************************************')
+
+        POSTS: int = 0
 
         # URL correta para a API de chat completions
         response = requests.post("https://api.openai.com/v1/chat/completions",

@@ -47,7 +47,8 @@ class Usuarios(db.Model):
         return {
             'usuario_id': self.usuario_id,
             'username': self.username,
-            'email': self.email
+            'email': self.email,
+            'perfil_nome': self.perfil.nome if self.perfil else 'Sem Perfil'  # Verifica se o perfil existe
         }
 
 
