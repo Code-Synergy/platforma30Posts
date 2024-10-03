@@ -1,7 +1,12 @@
 from flask import request, jsonify
 from . import db, user
 from datetime import date
+import requests
 
+#API de envio de mensagem Whats
+URLTigor = "https://tigor.itlabs.app/wpp/api"
+KEYTigor = "3bd82d2e-3077-4226-a366-1338eb3ed589"
+headers_Tigor = {"Content-Type": "application/json"}
 
 class BalanceSM(db.Model):
     __tablename__ = 'balancesm'
@@ -56,6 +61,28 @@ def distribuir_ordem(id_form):
         count = BalanceSM.query.filter_by(usuario_id=sm.usuario_id, status_os=1).count()  # status 1 = ativo
         print(count)
         social_medias_com_os.append({'usuario': sm, 'ordens_ativas': count})
+
+    # Verificar se o Social Media já tem 4 ou mais OSs ativas e apenas imprimir um aviso
+    if count >= 4:
+        print('*************************************************')
+        print('************************************************')
+        print('************************************************')
+        print('     maior de 4 dispara mensagem     ')
+        print('************************************************')
+        print('************************************************')
+        print('************************************************')
+        payload_textos= {
+                            "app": KEYTigor,
+                            "number": '11998637834',
+                            "message": 'ALERTA: SOCIAL MEDIA COM GARGALO' ,
+                            "type": "text",
+                            "url": ''
+                        }
+        # Envia mensagem ao cliente
+        requests.post(URLTigor, json=payload_textos, headers=headers_Tigor)
+        print('MENSAGEM ENVIADA')
+        
+    social_medias_com_os.append({'usuario': sm, 'ordens_ativas': count})
 
     # Ordenar pelo número de OSs ativas (ordem crescente)
     social_medias_com_os.sort(key=lambda x: x['ordens_ativas'])

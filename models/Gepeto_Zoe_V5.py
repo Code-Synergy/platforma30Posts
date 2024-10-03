@@ -80,7 +80,7 @@ def processar_legendas_geral(whatsCliente, textao, form_id):
         print('   ')
         print('************************************************')
         print('************************************************')
-
+        return 'OK, o total de blocos é: ' + str(block_count)
         POSTS: int = 0
 
         # URL correta para a API de chat completions
@@ -110,7 +110,7 @@ def processar_legendas_geral(whatsCliente, textao, form_id):
 
             POSTS = POSTS + block_count
 
-            return 'OK, o total de blocos é: ' + str(block_count)
+            
 
 
 
