@@ -282,6 +282,7 @@ def processar_legendas(data, form_id, fluxo):
 
                         requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
                         texto_sem_hashtag = texto_legenda.replace("### Hashtags:", "")
+                        texto_sem_hashtag = texto_sem_hashtag + ' #30 posts #posttodososdias #devozasuamensagem '
                         # Payload de envio de POST e IMAGEM para o cliente
                         payload_textos= {
                             "app": KEYTigor,

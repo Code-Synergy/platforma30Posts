@@ -71,15 +71,30 @@ def distribuir_ordem(id_form):
         print('************************************************')
         print('************************************************')
         print('************************************************')
-        payload_textos= {
-                            "app": KEYTigor,
-                            "number": '11998637834',
-                            "message": 'ALERTA: SOCIAL MEDIA COM GARGALO' ,
-                            "type": "text",
-                            "url": ''
-                        }
-        # Envia mensagem ao cliente
-        requests.post(URLTigor, json=payload_textos, headers=headers_Tigor)
+        URLTigor = "https://tigor.itlabs.app/wpp/api"
+        whatsCliente = '11998637834'
+        payload = {
+            "app": "3bd82d2e-3077-4226-a366-1338eb3ed589",
+            "number": whatsCliente,
+            "message": "ALERTA: SOCIAL MEDIA COM GARGALO",
+            "type": "text",
+            "url": ""
+        }
+
+        headers = {
+            "Content-Type": "application/json"  # Define que o conteúdo enviado é JSON
+        }
+
+        responseWhats = requests.post(URLTigor, json=payload, headers=headers)
+
+        if responseWhats.status_code == 200 or responseWhats.status_code == 201:
+            print('Cliente informado com sucesso!')
+        else:
+            print('ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR :')
+            print(responseWhats.text)
+            print(responseWhats.status_code)
+            return jsonify({responseWhats}), 500
+
         print('MENSAGEM ENVIADA')
         
     social_medias_com_os.append({'usuario': sm, 'ordens_ativas': count})
