@@ -141,6 +141,20 @@ def registerWhats():
     email = data.get('email')
     telefone = data.get('telefone')
     perfil_id = 1
+    data_rec = {
+        "username": data.get('username'),
+        "email": data.get('email'),
+        "telefone": data.get('telefone'),
+        "nomenegocio": data.get('nomenegocio'),
+        "socialmedia": data.get('socialmedia'),
+        "objetivo": data.get('objetivo'),
+        "site": data.get('site'),
+        "nome": data.get('nome'),
+        "prakem": data.get('prakem'),
+        "estilo": data.get('estilo'),
+        "cor": data.get('cor'),
+    }
+
 
     try:
         #new_user SE EXISTE UM USUÁRIO
@@ -157,6 +171,7 @@ def registerWhats():
             print(new_user.usuario_id)
             # Busca pelo id do usuario se tem uma ordem de serviço
             ordem = OrdemDeServico.query.filter_by(usuario_id=new_user.usuario_id).first()
+            print(ordem)
             if ordem is not None:
                 data_recebida_dt = datetime.strptime(ordem.data.strftime('%Y-%m-%d'), '%Y-%m-%d')
                 data_atual = datetime.now()
@@ -168,7 +183,7 @@ def registerWhats():
                     print("A data recebida está fora dos próximos 7 dias.")
                     #Pega dados do Formumário e enviar nova legenda
                     form = get_formularios_form_id(ordem.id_form)
-
+                    print(form)
                     #Monta o data para enviar o dados para legenda nova
                     DadosForm = {
                         "username": form.email_cliente,
@@ -229,124 +244,136 @@ def registerWhats():
                 db.session.commit()
             else:
                 cliente = existeCliente
-
-            # INSERIR NEGOCIO
-            try:
-                print('BORA INSERIR O NEGOCIO....')
-                new_deal = Negocio(cliente_id=cliente.cliente_id, nome_negocio=data.get("nomenegocio"), descricao='',
-                                   ativo=True)
-                db.session.add(new_deal)
-                db.session.commit()
-                print('NEGOCIO INSERIDO COM SUCESSO....')
-            except Exception as e:
-                db.session.rollback()
-                error_message = str(e)
-                print(error_message)
-                return jsonify({'error': 'Erro ao inserir o negócio. Tente novamente.'}), 400
-
-            # INSERIR PEDIDO
-            try:
-                print('BORA INSERIR O PEDIDO....')
-                new_order = Pedido(negocio_id=new_deal.negocio_id, descricao='POST GRATIS VIA WHATS', valor=0.0,
-                                   cliente_id=cliente.cliente_id, ativo=True)
-                db.session.add(new_order)
-                db.session.commit()
-                print('PEDIDO INSERIDO COM SUCESSO....')
-            except Exception as e:
-                db.session.rollback()
-                error_message = str(e)
-                print(error_message)
-                return jsonify({'error': 'Erro ao inserir o pedido. Tente novamente.'}), 400
-
-            # INSERIR ORDEM DE SERVIÇO
-            id_form = uuid.uuid4()
-            try:
-                print('BORA INSERIR O ORDEM DE SERVIÇO....')
-                # Adiciona Ordem de serviço
-                new_service_order = OrdemDeServico(
-                    pedido_id=new_order.pedido_id,
-                    descricao='POST GRATIS VIA WHATS',
-                    data=datetime.now(),
-                    usuario_id=new_user.usuario_id,
-                    workflow_id=2,
-                    id_negocio=new_deal.negocio_id,
-                    id_produto=1,
-                    prazointerno=datetime.now(),  # Usando a data corretamente
-                    prazoexterno=datetime.now(),  # Usando a data corretamente
-                    entrega=datetime.now(),  # Usando a data corretamente
-                    mensal=False
-                    #id_form=id_form
-                )
-
-                db.session.add(new_service_order)
-                db.session.commit()
-                print('ORDEM DE SERVIÇO INSERIDO COM SUCESSO....')
-            except Exception as e:
-                db.session.rollback()
-                error_message = str(e)
-                print(error_message)
-                return jsonify({'error': 'Erro ao inserir ordem de serviço. Tente novamente.'}), 400
-
-            # INSERIR FORMULÁRIO
-            try:
-
-                print('BORA INSERIR O FORMULÁRIO....')
-                # Adiciona o Formulário para preenchimento
-                form = FormularioCliente(
-
-                    ordem_id=new_service_order.ordem_id,
-                    nome_cliente=username,
-                    whatsapp_cliente=telefone,
-                    email_cliente=email,
-                    id_form=id_form
-                )
-
-                db.session.add(form)
-                db.session.commit()
-                print('FORMULÁRIO: ' + str(id_form) + ' INSERIDO COM SUCESSO....')
-            except Exception as e:
-                db.session.rollback()
-                error_message = str(e)
-                print(error_message)
-                return jsonify({'error': 'Erro ao inserir FORMULÁRIO. Tente novamente.'}), 400
-
-            #TODO  Atualiza do form na tabela de Ordem de Serviços
-
-
-
-            print('enviando criação da legenda para:')
-            nomenegocio = data.get("nomenegocio")
-            socialmedia = data.get("socialmedia")
-            objetivo = data.get("objetivo")
-
-            #print(nomenegocio + ' ' + socialmedia + ' ' + objetivo)
-            fluxo = validaFluxo(data)
-
-            envioLegenda = processar_legendas(data, id_form, fluxo)
-            #site = r"http:\\plataforma.30posts.com.br"
-
-            # Payload de envio ao cliente inicio de processo
-            #payload_img = {
-            #    "app": KEYTigor,
-            #    "number": telefone,
-            #    "message": "Você também pode visualizar os seus posts na plataforma 30 Posts! \n\n " + site + " \n\nSeu Login é: " + email + "\n\nSua Senha: " + password,
-            #    "type": "text",
-            #    "url": ""
-            #}
-            # Envia mensagem ao cliente
-            #requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
-
-            # VERIFICAR VALIDAÇÃO RETORNO
-            print('**********************************************')
-            print('VOLTOU DO ENVIO')
-            print('**********************************************')
-            return jsonify(cliente.serialize()), 201
-
         except Exception as e:
             db.session.rollback()
             error_message = str(e)
             print(error_message)
             return jsonify({'error': 'Erro ao inserir o cliente. Tente novamente.'}), 400
+
+        # INSERIR NEGOCIO
+        try:
+            print('BORA INSERIR O NEGOCIO....')
+            new_deal = Negocio(cliente_id=cliente.cliente_id, nome_negocio=data.get("nomenegocio"), descricao='',
+                               ativo=True)
+            db.session.add(new_deal)
+            db.session.commit()
+            print('NEGOCIO INSERIDO COM SUCESSO....')
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)
+            print(error_message)
+            return jsonify({'error': 'Erro ao inserir o negócio. Tente novamente.'}), 400
+
+        # INSERIR PEDIDO
+        try:
+            print('BORA INSERIR O PEDIDO....')
+            new_order = Pedido(negocio_id=new_deal.negocio_id, descricao='POST GRATIS VIA WHATS', valor=0.0,
+                               cliente_id=cliente.cliente_id, ativo=True)
+            db.session.add(new_order)
+            db.session.commit()
+            print('PEDIDO INSERIDO COM SUCESSO....')
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)
+            print(error_message)
+            return jsonify({'error': 'Erro ao inserir o pedido. Tente novamente.'}), 400
+
+
+        # INSERIR ORDEM DE SERVIÇO
+        try:
+            print('BORA INSERIR O ORDEM DE SERVIÇO....')
+            # Adiciona Ordem de serviço
+            new_service_order = OrdemDeServico(
+                pedido_id=new_order.pedido_id,
+                descricao='POST GRATIS VIA WHATS',
+                data=datetime.now(),
+                usuario_id=new_user.usuario_id,
+                workflow_id=2,
+                id_negocio=new_deal.negocio_id,
+                id_produto=1,
+                prazointerno=datetime.now(),  # Usando a data corretamente
+                prazoexterno=datetime.now(),  # Usando a data corretamente
+                entrega=datetime.now(),  # Usando a data corretamente
+                mensal=False
+                #id_form=id_form
+            )
+
+            db.session.add(new_service_order)
+            db.session.commit()
+            print('ORDEM DE SERVIÇO INSERIDO COM SUCESSO....')
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)
+            print(error_message)
+            return jsonify({'error': 'Erro ao inserir ordem de serviço. Tente novamente.'}), 400
+
+        # INSERIR FORMULÁRIO
+        try:
+            id_form = uuid.uuid4()
+            print('BORA INSERIR O FORMULÁRIO....')
+            # Adiciona o Formulário para preenchimento
+            form = FormularioCliente(
+
+                id_form=id_form,
+                ordem_id=new_service_order.ordem_id,
+                nome_cliente=data.get('username'),
+                whatsapp_cliente=data.get('telefone'),
+                email_cliente=data.get('email'),
+                nomenegocio=data.get("nomenegocio"),
+                site=data.get('site'),
+                nicho=data.get('objetivo'),
+                tema=data.get('estilo'),
+                identidade_visual_1=data.get('cor'),
+                perfis_redes_sociais_1=data.get('socialmedia'),
+                resumo_cliente=data.get('prakem')
+
+            )
+
+            db.session.add(form)
+            db.session.commit()
+            print('FORMULÁRIO: ' + str(id_form) + ' INSERIDO COM SUCESSO....')
+
+            # Atualizar Ordem de Serviço com o id_form
+            print('ATUALIZANDO ORDEM DE SERVIÇO COM O ID DO FORMULÁRIO....')
+            new_service_order.id_form = id_form
+            db.session.commit()
+            print('ORDEM DE SERVIÇO ATUALIZADA COM O FORMULÁRIO ID....')
+
+        except Exception as e:
+            db.session.rollback()
+            error_message = str(e)
+            print(error_message)
+            return jsonify({'error': 'Erro ao inserir FORMULÁRIO. Tente novamente.'}), 400
+
+        #TODO  Atualiza do form na tabela de Ordem de Serviços
+
+        print('enviando criação da legenda para:')
+        nomenegocio = data.get("nomenegocio")
+        socialmedia = data.get("socialmedia")
+        objetivo = data.get("objetivo")
+
+        #print(nomenegocio + ' ' + socialmedia + ' ' + objetivo)
+        fluxo = validaFluxo(data)
+
+        envioLegenda = processar_legendas(data, id_form, fluxo)
+        #site = r"http:\\plataforma.30posts.com.br"
+
+        # Payload de envio ao cliente inicio de processo
+        #payload_img = {
+        #    "app": KEYTigor,
+        #    "number": telefone,
+        #    "message": "Você também pode visualizar os seus posts na plataforma 30 Posts! \n\n " + site + " \n\nSeu Login é: " + email + "\n\nSua Senha: " + password,
+        #    "type": "text",
+        #    "url": ""
+        #}
+        # Envia mensagem ao cliente
+        #requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
+
+        # VERIFICAR VALIDAÇÃO RETORNO
+        print('**********************************************')
+        print('VOLTOU DO ENVIO')
+        print('**********************************************')
+        return jsonify(cliente.serialize()), 201
 
     except IntegrityError as e:
         print('Erro de Integridade!')

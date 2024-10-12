@@ -2,18 +2,16 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import DateTime, func
 from . import db
 from utils.token_verify import token_required
+from . import db
 
 formulario_cliente_bp = Blueprint('formulario_cliente', __name__)
-
-from . import db
 
 
 class FormularioCliente(db.Model):
     __tablename__ = 'formulario_cliente'
 
-    id_form = db.Column(db.String(36), primary_key=True,
-                        default=db.func.gen_random_uuid())
-    ordem_id = db.Column(db.Integer, db.ForeignKey('ordens_de_servico.ordem_id'))
+    id_form = db.Column(db.String(36), primary_key=True, default=db.func.gen_random_uuid())
+    ordem_id = db.Column(db.Integer)
     nome_cliente = db.Column(db.String(255))
     whatsapp_cliente = db.Column(db.String(20), nullable=False)
     email_cliente = db.Column(db.String(255), nullable=False)
