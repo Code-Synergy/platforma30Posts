@@ -2,14 +2,14 @@ import os
 import random
 import re
 import string
-
-from flask import request, jsonify, Blueprint, make_response
 import requests
 import json
-
+from flask import request, jsonify, Blueprint, make_response
 from models import legendas
 from models.Zoe_Img import gerar_imagem, upload_to_supabase
 from utils.token_verify import token_required
+from datetime import datetime
+
 
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
@@ -88,6 +88,7 @@ def processar_legendas(data, form_id, fluxo):
     prakem = data.get("prakem")
     estilo = data.get("estilo")
     cor = data.get("cor")
+    dt_legenda = datetime.now()
 
     # Payload de envio ao cliente inicio de processo
     payload_img = {
@@ -253,6 +254,7 @@ def processar_legendas(data, form_id, fluxo):
                             "ds_revisao": '',
                             "ds_headline": texto_headline,
                             "ds_hashtag": '',
+                            "dt_legenda": dt_legenda
                         }
 
                         print('ENVIANDO LEGENDAS....')
@@ -282,6 +284,7 @@ def processar_legendas(data, form_id, fluxo):
 
                         requests.post(URLTigor, json=payload_img, headers=headers_Tigor)
                         texto_sem_hashtag = texto_legenda.replace("### Hashtags:", "")
+                        texto_sem_hashtag = texto_sem_hashtag + ' #30 posts #posttodososdias #devozasuamensagem '
                         # Payload de envio de POST e IMAGEM para o cliente
                         payload_textos= {
                             "app": KEYTigor,

@@ -3,7 +3,9 @@ import requests
 import json
 import re
 from models import legendas
+from models.balancesm import distribuir_ordem
 from models.formulario_cliente import FormularioCliente
+from models.ordens_de_servico import OrdemDeServico
 
 # Defina sua chave da API da OpenAI
 API_KEY = "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"
@@ -46,10 +48,10 @@ def processar_legendas():
     textao = 'Nome: ' + dataForm.nome_cliente + ' Nicho: ' + dataForm.nicho + ' Nome do Negócio: ' + dataForm.nome_negocio
     textao = textao + ' Cliente ideial: ' + dataForm.resumo_cliente + ' História: ' + dataForm.comeco + ' Produto: ' + dataForm.produto + ' Temas: ' + dataForm.temas
 
-    return processar_legendas(dataForm.whatsapp_cliente, textao, idForm)
+    return processar_legendas_geral(dataForm.whatsapp_cliente, textao, idForm)
 
 
-def processar_legendas(whatsCliente, textao, form_id=0):
+def processar_legendas_geral(whatsCliente, textao, form_id):
     try:
         with open('./models/promptBase.txt', 'r', encoding='utf8') as arquivo:
             BASE = arquivo.read()
@@ -70,7 +72,18 @@ def processar_legendas(whatsCliente, textao, form_id=0):
             "temperature": 0.7
         }
 
-        POSTS = 0
+        #Coloca um SM para tratar
+        ordemSM = distribuir_ordem(form_id)
+        print('************************************************')
+        print('************************************************')
+        print('   ')
+        print(ordemSM)
+        print('   ')
+        print('************************************************')
+        print('************************************************')
+        print(ordemSM.text)
+        return 'OK, o total de blocos é: ' + str(block_count)
+        POSTS: int = 0
 
         # URL correta para a API de chat completions
         response = requests.post("https://api.openai.com/v1/chat/completions",
@@ -99,7 +112,7 @@ def processar_legendas(whatsCliente, textao, form_id=0):
 
             POSTS = POSTS + block_count
 
-            return 'OK, o total de blocos é: ' + str(block_count)
+            
 
 
 
