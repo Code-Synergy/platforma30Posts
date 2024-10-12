@@ -30,9 +30,10 @@ class Legenda(db.Model):
     ds_headline = db.Column(db.Text, nullable=False)
     ds_hashtag = db.Column(db.Text, nullable=False)
     ds_canva = db.Column(db.Text, nullable=True)
+    dt_legenda = db.Column(db.Date, nullable=False)
 
     def __init__(self, id_form, dia_post, ds_legenda, img_legenda=None, bl_aprovado=False, bl_revisar=False,
-                 ds_revisao=None, bl_planner=False, ds_headline=None, ds_hashtag=None, ds_canva=None):
+                 ds_revisao=None, bl_planner=False, ds_headline=None, ds_hashtag=None, ds_canva=None, dt_legenda=None):
         self.id_form = id_form
         self.dia_post = dia_post
         self.ds_legenda = ds_legenda
@@ -44,6 +45,7 @@ class Legenda(db.Model):
         self.ds_headline = ds_headline
         self.ds_hashtag = ds_hashtag
         self.ds_canva = ds_canva
+        self.dt_legenda = dt_legenda
 
     def serialize(self):
         return {
@@ -58,7 +60,8 @@ class Legenda(db.Model):
             'bl_planner': self.bl_planner,
             'ds_headline': self.ds_headline,
             'ds_hashtag': self.ds_hashtag,
-            'ds_canva': self.ds_canva
+            'ds_canva': self.ds_canva,
+            'dt_legenda': self.dt_legenda
         }
 
 
@@ -119,7 +122,8 @@ def geraLegenda(data):
         bl_planner=data.get('bl_planner', False),
         ds_headline=data.get('ds_headline', None),
         ds_hashtag=data.get('ds_hashtag', None),
-        ds_canva=data.get('ds_canva', None)
+        ds_canva=data.get('ds_canva', None),
+        dt_legenda=data.get('dt_legenda', None)
     )
 
     try:
