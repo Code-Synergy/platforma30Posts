@@ -167,6 +167,7 @@ def processar_legendas(data, form_id, fluxo):
         print('*********************************************************************')
         print('VOLTOU DO GPTETO')
         print('*********************************************************************')
+
         print(response.json().get('choices', [{}])[0].get('message', {}).get('content', ''))
         print("Status CODE: " + str(response.status_code))
         print("Status TEXTO DO ERRO: " + str(response.text))

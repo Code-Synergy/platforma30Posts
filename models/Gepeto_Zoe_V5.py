@@ -1,8 +1,8 @@
-import json
 import os
-import re
-import requests
 from flask import request, jsonify, Blueprint
+import requests
+import json
+import re
 from models import legendas
 from models.balancesm import distribuir_ordem
 from models.formulario_cliente import FormularioCliente
