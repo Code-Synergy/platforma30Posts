@@ -1,14 +1,16 @@
-from flask import request, jsonify, Blueprint
-import requests
 import json
+import os
 import re
+import requests
+from flask import request, jsonify, Blueprint
 from models import legendas
 from models.balancesm import distribuir_ordem
 from models.formulario_cliente import FormularioCliente
 from models.ordens_de_servico import OrdemDeServico
+from dotenv import load_dotenv
 
-# Defina sua chave da API da OpenAI
-API_KEY = "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"
+load_dotenv()
+API_KEY = os.getenv('OPENAI_API_KEY')
 
 zoe_bp = Blueprint('zoe', __name__)
 

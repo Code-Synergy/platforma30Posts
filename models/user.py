@@ -83,7 +83,7 @@ def register():
                 telefone='',
                 email=email,
                 pais='',
-                tipo_cliente_id=0,
+                tipo_cliente_id=1,
                 ativo=True
             )
             db.session.add(cliente)
