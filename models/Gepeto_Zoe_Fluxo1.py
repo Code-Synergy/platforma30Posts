@@ -4,15 +4,16 @@ import re
 import string
 import requests
 import json
+import uuid
 from flask import request, jsonify, Blueprint, make_response
 from models import legendas
 from models.Zoe_Img import gerar_imagem, upload_to_supabase
 from utils.token_verify import token_required
 from datetime import datetime
+from dotenv import load_dotenv
 
-
-# Defina sua chave da API da OpenAI
-API_KEY = "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"
+load_dotenv()
+API_KEY = os.getenv('OPENAI_API_KEY')
 
 # API de envio de mensagem Whats
 URLTigor = "https://tigor.itlabs.app/wpp/api"
@@ -67,6 +68,8 @@ def processar_fluxo1_site(token_data):
         return jsonify({"error": "Texto de entrada não fornecido."}), 400
 
     fluxo = validaFluxo(data)
+    if form_id is None:
+        form_id = uuid.uuid4()
 
     return processar_legendas(data, form_id, fluxo)
 
@@ -165,6 +168,9 @@ def processar_legendas(data, form_id, fluxo):
         print('VOLTOU DO GPTETO')
         print('*********************************************************************')
 
+        print(response.json().get('choices', [{}])[0].get('message', {}).get('content', ''))
+        print("Status CODE: " + str(response.status_code))
+        print("Status TEXTO DO ERRO: " + str(response.text))
         if response.status_code == 200:
             print(response)
             output = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
