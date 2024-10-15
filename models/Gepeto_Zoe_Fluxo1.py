@@ -13,18 +13,18 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
-API_KEY = os.getenv('OPENAI_API_KEY')
-
 # API de envio de mensagem Whats
-URLTigor = "https://tigor.itlabs.app/wpp/api"
-KEYTigor = "3bd82d2e-3077-4226-a366-1338eb3ed589"
+URLTigor = os.getenv('URLTigor')
+KEYTigor = os.getenv('KEYTigor')
+
 headers_Tigor = {"Content-Type": "application/json"}
 
 zoeFluxo1_bp = Blueprint('zoeFluxo1', __name__)
 
 
 @zoeFluxo1_bp.route('/', methods=['POST'])
-def processar_fluxo1():
+@token_required
+def processar_fluxo1(token_data):
     form_id = token_data.get('id')
     data = request.get_json()
 

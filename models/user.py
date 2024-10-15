@@ -14,10 +14,16 @@ from .ordens_de_servico import OrdemDeServico
 from .pedido import Pedido
 from datetime import datetime, timezone, timedelta
 import uuid
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+API_KEY = os.getenv('OPENAI_API_KEY')
 
 # API de envio de mensagem Whats
-URLTigor = "https://tigor.itlabs.app/wpp/api"
-KEYTigor = "3bd82d2e-3077-4226-a366-1338eb3ed589"
+URLTigor = os.getenv('URLTigor')
+KEYTigor = os.getenv('KEYTigor')
+
 headers_Tigor = {"Content-Type": "application/json"}
 
 global password
@@ -386,3 +392,71 @@ def registerWhats():
                 {'error': 'Erro: Este nome de usuário ou e-mail já está em uso. Por favor, escolha outro.'}), 400
         else:
             return jsonify({'error': 'Ocorreu um erro ao tentar criar o usuário. Tente novamente mais tarde.'}), 400
+
+
+
+@user_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+
+    user = Usuarios.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Gerar token de redefinição de senha
+    token = jwt.encode({
+        'user_id': user.usuario_id,
+        'exp': datetime.now(timezone.utc) + timedelta(hours=1)
+    }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
+
+    # Enviar e-mail com o token
+    reset_url = f"{request.host_url}reset-password/{token}"
+    send_reset_email(user.email, reset_url)
+
+    return jsonify({'message': 'Password reset email sent'}), 200
+
+def send_reset_email(email, reset_url):
+    subject = "Redefinição de Senha"
+    body = f"Clique no link abaixo para redefinir sua senha: {reset_url}"
+    # Aqui você usaria uma biblioteca como Flask-Mail para enviar o e-mail
+    # Ou outro serviço de envio de e-mail, como SendGrid, SMTP, etc.
+    # Implementação do envio de e-mail fica a seu critério
+    print(f"Enviando e-mail para {email}: {body}")
+
+
+@user_bp.route('/reset-password/<token>', methods=['POST'])
+def reset_password(token):
+    try:
+        # Decodificar o token
+        data = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
+        user_id = data.get('user_id')
+
+        # Verificar se o token está expirado
+        if datetime.now(timezone.utc) > datetime.utcfromtimestamp(data['exp']):
+            return jsonify({'message': 'Token expired'}), 400
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Token expired'}), 400
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 400
+
+    # Obter os dados da nova senha
+    data = request.get_json()
+    new_password = data.get('password')
+
+    if not new_password:
+        return jsonify({'message': 'Password is required'}), 400
+
+    # Hash da nova senha
+    hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
+
+    # Atualizar a senha do usuário
+    user = Usuarios.query.get(user_id)
+    if user:
+        user.senha = hashed_password
+        db.session.commit()
+        return jsonify({'message': 'Password has been reset'}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
