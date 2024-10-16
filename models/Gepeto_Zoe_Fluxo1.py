@@ -16,6 +16,7 @@ load_dotenv()
 # API de envio de mensagem Whats
 URLTigor = os.getenv('URLTigor')
 KEYTigor = os.getenv('KEYTigor')
+API_KEY = os.getenv('OPENAI_API_KEY')
 
 headers_Tigor = {"Content-Type": "application/json"}
 
@@ -179,6 +180,7 @@ def processar_legendas(data, form_id, fluxo):
             # Ajuste para capturar o texto entre "Headline", "Legenda" e "Imagem", considerando o novo formato com '###'
             match_headline_legenda = re.search(r'### Headline:\s*(.*?)\s*### Legenda:', output, re.DOTALL)
             match_legenda_imagem = re.search(r'### Legenda:\s*(.*?)\s*### Imagem:', output, re.DOTALL)
+            match_hashtag = re.search(r'### Hashtags:\s*(.*?)\s*### Imagem:', output, re.DOTALL)
             match_imagem_final = re.search(r'### Imagem:\s*(.*)', output, re.DOTALL)
 
             # Verificando se os padrões foram encontrados e extraindo os textos
@@ -188,16 +190,19 @@ def processar_legendas(data, form_id, fluxo):
                 1).strip() if match_legenda_imagem else "Não foi possível encontrar o trecho entre 'Legenda' e 'Imagem'."
             texto_imagem = match_imagem_final.group(
                 1).strip() if match_imagem_final else "Não foi possível encontrar o trecho após 'Imagem'."
+            texto_hashtag = match_hashtag.group(
+                1).strip() if match_hashtag else "Não foi possível encontrar o trecho após 'Hashtag'."
 
             # Exibindo as variáveis separadas
             print("Texto da Headline:\n", texto_headline)
             print("\nTexto da Legenda:\n", texto_legenda)
             print("\nTexto da Imagem:\n", texto_imagem)
+            print("\nTexto da Hashtag:\n", texto_hashtag)
 
             print(texto_legenda)
             print('**********************************************************')
             print(texto_imagem)
-            texto_imagem = texto_imagem + ' inclua o texto: ' + texto_headline + ' na imagem'
+            texto_imagem = texto_imagem #+ ' inclua o texto: ' + texto_headline + ' na imagem'
             #prompt_imagem = 'Com base no perfil do instagram ' + socialmedia + ', gere uma imagem no formato feed quadrado (1080x1080) que mais se encaixa no nicho e no estilo do usuário. Quero uma cena compatível com conteúdo criado. De preferência para retrato em close-up, tomada autêntica, que transmite a emoção do texto gerado.'
 
             print('GERANDO IMAGEM...')
@@ -259,7 +264,7 @@ def processar_legendas(data, form_id, fluxo):
                             "bl_aprovado": True,
                             "ds_revisao": '',
                             "ds_headline": texto_headline,
-                            "ds_hashtag": '',
+                            "ds_hashtag": texto_hashtag,
                             "dt_legenda": dt_legenda
                         }
 

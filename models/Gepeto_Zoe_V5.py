@@ -43,7 +43,6 @@ def processar_legendas():
         'temas': dataForm.temas,
         'whatsapp_cliente': dataForm.whatsapp_cliente
     }
-    print(form_data)
     # Retornar os dados do formulário como resposta JSON
     # return jsonify(form_data), 200
 
@@ -76,25 +75,15 @@ def processar_legendas_geral(whatsCliente, textao, form_id):
 
         #Coloca um SM para tratar
         ordemSM = distribuir_ordem(form_id)
-        print('************************************************')
-        print('************************************************')
-        print('   ')
-        print(ordemSM)
-        print('   ')
-        print('************************************************')
-        print('************************************************')
-        print(ordemSM.text)
-        return 'OK, o total de blocos é: ' + str(block_count)
         POSTS: int = 0
 
         # URL correta para a API de chat completions
         response = requests.post("https://api.openai.com/v1/chat/completions",
                                  headers=headers, data=json.dumps(data))
 
-        if response.status_code == 200:
+        if response.status_code == 200 or response.status_code == 201:
             output = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')
             print(output)
-
             # Regex para identificar os blocos de texto que começam com ### Headline e terminam com ### Hashtags
             pattern = r'### Headline\n+([^\n]+)\n+### Legenda\n+([^\n]+)\n+([\s\S]+?)\n+### Hashtags\n+([^\n]+)'
 
@@ -103,6 +92,9 @@ def processar_legendas_geral(whatsCliente, textao, form_id):
 
             # Contagem de blocos
             block_count = len(blocks)
+            print("********** TEMOS: " + str(block_count) + " Blocos de Legenda")
+            exit()
+            i = 0
 
             for i, block in enumerate(blocks[:30], start=1):
                 headline, legenda, conteudo, hashtags = block
@@ -112,53 +104,49 @@ def processar_legendas_geral(whatsCliente, textao, form_id):
                 print(f"{conteudo}")
                 print(f"### Hashtags\n{hashtags}\n")
 
-            POSTS = POSTS + block_count
+                POSTS = POSTS + block_count
+                print('***************** BLOCKS ***************************')
+                print(POSTS)
+                print('******************BLOCKS **************************')
+                # Extraindo a Headline (tanto com *** ou ###)
+                headline_match = re.search(r'(?:\*\*\*|###)?\s*Headline\s*\n(.*)', output)
+                headline = headline_match.group(1).strip() if headline_match else 'Headline não encontrada'
 
-            
+                # Extraindo a Legenda (tanto com ou sem *** ou ###)
+                legenda_match = re.search(r'(?:\*\*\*|###)?\s*Legenda\s*\n([\s\S]*?)(#|$)', output)
+                legenda = legenda_match.group(1).strip() if legenda_match else output  # 'Legenda não encontrada'
 
+                # Extraindo as hashtags
+                hashtags = ' '.join(re.findall(r'#\w+', output))
 
+                # Exibindo os resultados
+                print("Headline:", headline)
+                print("Legenda:", legenda)
+                print("Hashtags:", hashtags)
 
+                legenda_data = {
+                    "id_form": form_id,  # ID fixo vindo de outra fonte
+                    "dia_post":  i + 1,
+                    "ds_legenda": legenda,
+                    "img_legenda": '',  #ur_limg,
+                    "bl_aprovado": False,
+                    "bl_revisar": False,
+                    "ds_revisao": '',
+                    "bl_planner": False,
+                    "ds_headline": headline,
+                    "ds_hashtags": hashtags
+                }
 
+                print('ENVIANDO LEGENDAS....')
 
-            # Extraindo a Headline (tanto com *** ou ###)
-            headline_match = re.search(r'(?:\*\*\*|###)?\s*Headline\s*\n(.*)', output)
-            headline = headline_match.group(1).strip() if headline_match else 'Headline não encontrada'
+                # Enviando a legenda usando o serviço de legendas
+                legenda_response = legendas.geraLegenda(legenda_data)
 
-            # Extraindo a Legenda (tanto com ou sem *** ou ###)
-            legenda_match = re.search(r'(?:\*\*\*|###)?\s*Legenda\s*\n([\s\S]*?)(#|$)', output)
-            legenda = legenda_match.group(1).strip() if legenda_match else output  # 'Legenda não encontrada'
-
-            # Extraindo as hashtags
-            hashtags = ' '.join(re.findall(r'#\w+', output))
-
-            # Exibindo os resultados
-            print("Headline:", headline)
-            print("Legenda:", legenda)
-            print("Hashtags:", hashtags)
-
-            legenda_data = {
-                "id_form": form_id,  # ID fixo vindo de outra fonte
-                "dia_post": i + 1,
-                "ds_legenda": legenda,
-                "img_legenda": '',  #ur_limg,
-                "bl_aprovado": False,
-                "bl_revisar": False,
-                "ds_revisao": '',
-                "bl_planner": False,
-                "ds_headline": headline,
-                "ds_hashtags": hashtags
-            }
-
-            print('ENVIANDO LEGENDAS....')
-
-            # Enviando a legenda usando o serviço de legendas
-            legenda_response = legendas.geraLegenda(legenda_data)
-
-            #VERIFICAR VALIDACAO RETORNO
-            #if legenda_response.status_code == 201:
-            #    print(f"Legenda para o dia {1} enviada com sucesso.")
-            #else:
-            #    print(f"Erro ao enviar legenda para o dia {1}: {legenda_response.text}")
+                #VERIFICAR VALIDACAO RETORNO
+                #if legenda_response.status_code == 201:
+                #    print(f"Legenda para o dia {1} enviada com sucesso.")
+                #else:
+                #    print(f"Erro ao enviar legenda para o dia {1}: {legenda_response.text}")
 
         print('BORA AVISAR CLIENTE: ....')
         print("ENVIAR MENSAGEM NO WHATS.....")
