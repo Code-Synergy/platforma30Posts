@@ -415,7 +415,10 @@ def forgot_password():
     reset_url = f"{request.host_url}reset-password/{token}"
     send_reset_email(user.email, reset_url)
 
-    return jsonify({'message': 'Password reset email sent'}), 200
+    return jsonify({
+        'message': 'Password reset email sent',
+        'reset_token': token
+    }), 200
 
 def send_reset_email(email, reset_url):
     subject = "Redefinição de Senha"
@@ -434,7 +437,7 @@ def reset_password(token):
         user_id = data.get('user_id')
 
         # Verificar se o token está expirado
-        if datetime.now(timezone.utc) > datetime.utcfromtimestamp(data['exp']):
+        if datetime.now(timezone.utc) > datetime.fromtimestamp(data['exp'], tz=timezone.utc):
             return jsonify({'message': 'Token expired'}), 400
 
     except jwt.ExpiredSignatureError:
@@ -460,3 +463,4 @@ def reset_password(token):
         return jsonify({'message': 'Password has been reset'}), 200
     else:
         return jsonify({'message': 'User not found'}), 404
+
