@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
+
+from utils.token_verify import token_required
 from . import db
 from .formulario_cliente import FormularioCliente
 from .ordens_de_servico import OrdemDeServico
+from .user import Usuarios
 
 clientes_bp = Blueprint('clientes', __name__)
 
@@ -104,6 +107,14 @@ def update_cliente(id):
     cliente.ativo = data.get('ativo', cliente.ativo)
 
     db.session.commit()
+
+    Usuarios.query.update()
+    Usuarios.query.filter_by(email=cliente.email).update({
+            "img_user": data.get('img_user'),
+            "username": data.get('nome')
+            })
+    db.session.commit()
+
     return jsonify(cliente.serialize())
 
 
@@ -137,3 +148,32 @@ def consultaTele(id_form):
     #telefone = clientes.get('telefone')
     #print('Pegou o telefone do cliente:' + telefone)
     return whatsapp_cliente
+
+
+
+
+@clientes_bp.route('/updtPerson', methods=['PUT'])
+@token_required
+def update_cliente(token_data):
+    user_id = token_data.get('user_id')
+    data = request.get_json()
+    Usuarios.query.update()
+    Usuarios.query.filter_by(usuario_id=user_id).update({
+        "img_user": data.get('img_user'),
+        "username": data.get('nome')
+    })
+    db.session.commit()
+
+    cliente = Cliente.query.get_or_404(id)
+    cliente.nome = data.get('nome', cliente.nome)
+    cliente.contato = data.get('contato', cliente.contato)
+    cliente.segmento = data.get('segmento', cliente.segmento)
+    cliente.telefone = data.get('telefone', cliente.telefone)
+    cliente.email = data.get('email', cliente.email)
+    cliente.pais = data.get('pais', cliente.pais)
+    cliente.tipo_cliente_id = data.get('tipo_cliente_id', cliente.tipo_cliente_id)
+    cliente.ativo = data.get('ativo', cliente.ativo)
+
+    db.session.commit()
+
+    return jsonify(cliente.serialize())

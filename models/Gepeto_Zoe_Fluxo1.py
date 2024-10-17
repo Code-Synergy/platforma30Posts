@@ -172,6 +172,33 @@ def processar_legendas(data, form_id, fluxo):
         print(response.json().get('choices', [{}])[0].get('message', {}).get('content', ''))
         print("Status CODE: " + str(response.status_code))
         print("Status TEXTO DO ERRO: " + str(response.text))
+        if response.status_code == 429:
+            headersJ = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY_J')}"
+            }
+
+            print('*********************************************************************')
+            print('DEU MERDA NA ZOE - Vamos no free')
+            print('*********************************************************************')
+            data2 = {
+                "model": "gpt-3.5-turbo",  # Atualize o modelo se necessário
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": fluxoGPT}
+                ],
+                "temperature": 0.7
+                # "max_tokens": 50
+            }
+            response = requests.post("https://api.openai.com/v1/chat/completions",
+                                     headers=headersJ, data=json.dumps(data2))
+            if response.status_code != 200:
+                print('*********************************************************************')
+                print('DEU ZIKA no FREE PQP ')
+                print('*********************************************************************')
+                print("Status CODE: " + str(response.status_code))
+                print("Status TEXTO DO ERRO: " + str(response.text))
+
         if response.status_code == 200:
             print(response)
             output = response.json().get('choices', [{}])[0].get('message', {}).get('content', '')

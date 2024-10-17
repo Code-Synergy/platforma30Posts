@@ -45,6 +45,7 @@ class Usuarios(db.Model):
     senha = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     perfil_id = db.Column(db.Integer, db.ForeignKey('perfis.perfil_id'), nullable=True)
+    img_user = db.Column(db.String(255), nullable=False)
 
     # Relacionamento com a tabela Perfis
     perfil = db.relationship('Perfis', backref='usuarios')
@@ -54,7 +55,8 @@ class Usuarios(db.Model):
             'usuario_id': self.usuario_id,
             'username': self.username,
             'email': self.email,
-            'perfil_nome': self.perfil.nome if self.perfil else 'Sem Perfil'  # Verifica se o perfil existe
+            'perfil_nome': self.perfil.nome if self.perfil else 'Sem Perfil',  # Verifica se o perfil existe
+            'img_user': self.img_user
         }
 
 
@@ -83,7 +85,7 @@ def register():
         try:
             # Insere o cliente na tabela
             cliente = Cliente(
-                nome='',
+                nome=username,
                 contato='',
                 segmento='',
                 telefone='',
@@ -95,7 +97,7 @@ def register():
             db.session.add(cliente)
             print('Vai inserir cliente')
             db.session.commit()
-            print('Vai INSERIU FDP')
+            print('Já INSERIU o FDP')
 
             return jsonify(cliente.serialize()), 201
 
@@ -123,7 +125,7 @@ def login():
             'exp': datetime.now(timezone.utc) + timedelta(hours=1)
         }, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
-        return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email, 'nome': user.username}), 200
+        return jsonify({'token': token, 'perfil': user.perfil_id, 'email': user.email, 'nome': user.username, 'img_user': user.img_user}), 200
 
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
@@ -464,3 +466,22 @@ def reset_password(token):
     else:
         return jsonify({'message': 'User not found'}), 404
 
+@user_bp.route('/update', methods=['PUT'])
+def update_user():
+    data = request.get_json()
+    user_id = data.get('user_id')  # ID do usuário que será atualizado
+    img_username = data.get('img_username')
+
+    # Busca o usuário existente no banco de dados
+    user = Usuarios.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'Usuário não encontrado'}), 404
+
+
+    # Atualiza os campos do usuário
+    if img_username:
+        user.img_username = img_username
+
+    # Atualiza o usuário no banco de dados
+    db.session.add(user)
+    db.session.commit()
